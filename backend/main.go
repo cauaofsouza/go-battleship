@@ -1,6 +1,6 @@
 package main
 import (
-	"gobattleship/game"
+	"github.com/allanjose001/go-battleship/backend/game"
 	"fmt"
 )
 
