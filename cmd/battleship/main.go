@@ -41,8 +41,8 @@ func main() {
 	//========== teste de profile ===========
 
 	profile1 := new(service.Profile);
-	profile1.Username = "Player2";
-	profile1.TotalScore = 300
+	profile1.Username = "Player1";
+	profile1.TotalScore = 200
 	profile1.HighestScore = 50
 	profile1.GamesPlayed = 5
 	profile1.MedalsEarned = 2
@@ -52,5 +52,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	//service.RemoveProfile("Player1");
 
 }

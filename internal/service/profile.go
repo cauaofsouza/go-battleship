@@ -42,14 +42,14 @@ func UpdateProfile(profile Profile) error {
 
     updated := false
     for i, p := range profiles {
-        if p.Username == profile.Username {
+        if p.Username == profile.Username { // verifica se username já existe
             profiles[i] = profile
             updated = true
             break
         }
     }
 
-    if !updated {
+    if !updated { // adiciona novo profile se username não existe
         profiles = append(profiles, profile)
     }
 
@@ -60,8 +60,6 @@ func UpdateProfile(profile Profile) error {
 
     return os.WriteFile(defaultPath, data, 0644)
 }
-
-
 
 func LoadProfiles() ([]Profile, error) {
 	
@@ -82,3 +80,39 @@ func LoadProfiles() ([]Profile, error) {
     return profiles, nil
 }
 
+func RemoveProfile(username string) error {
+    // se o arquivo não existe, não há o que remover
+    if _, err := os.Stat(defaultPath); os.IsNotExist(err) {
+        return nil
+    } else if err != nil {
+        return err
+    }
+
+    profiles, err := LoadProfiles()
+    if err != nil {
+        return err
+    }
+
+    newProfiles := make([]Profile, 0, len(profiles))
+    removed := false
+
+    for _, p := range profiles {
+        if p.Username != username {
+            newProfiles = append(newProfiles, p)
+        } else {
+            removed = true
+        }
+    }
+
+    // se não encontrou o profile
+    if !removed {
+        return nil
+    }
+
+    data, err := json.MarshalIndent(newProfiles, "", "  ")
+    if err != nil {
+        return err
+    }
+
+    return os.WriteFile(defaultPath, data, 0644)
+}

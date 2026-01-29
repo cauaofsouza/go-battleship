@@ -1,14 +1,14 @@
 [
   {
-    "Username": "Player1",
-    "TotalScore": 100,
+    "Username": "Player2",
+    "TotalScore": 200,
     "HighestScore": 50,
     "GamesPlayed": 5,
     "MedalsEarned": 2
   },
   {
-    "Username": "Player2",
-    "TotalScore": 300,
+    "Username": "Player1",
+    "TotalScore": 200,
     "HighestScore": 50,
     "GamesPlayed": 5,
     "MedalsEarned": 2
