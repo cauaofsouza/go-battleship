@@ -1,4 +1,4 @@
-package ui
+package UI
 
 import "github.com/hajimehoshi/ebiten/v2"
 
