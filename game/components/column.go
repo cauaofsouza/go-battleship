@@ -45,16 +45,8 @@ func NewColumn(
 	// posicionamento inicial (Start/Start)
 	c.init()
 
-	// se ambos forem Start, não faz nada
-	if mainAlign == basic.Start && crossAlign == basic.Start {
-		return c
-	}
-
-	if mainAlign != basic.Start {
-		c.alignMain(parentSize)
-	}
-	if crossAlign != basic.Start {
-		c.alignCross(parentSize)
+	if mainAlign != basic.Start || crossAlign != basic.Start {
+		c.align(parentSize)
 	}
 
 	return c
@@ -65,7 +57,7 @@ func (c *Column) Update(offset basic.Point) {
 	c.currentPos = c.Pos.Add(offset)
 
 	for _, w := range c.Children {
-		w.Update(c.Pos.Add(offset))
+		w.Update(c.currentPos)
 	}
 }
 
@@ -74,40 +66,35 @@ func (c *Column) Draw(screen *ebiten.Image) {
 		w.Draw(screen)
 	}
 }
-
-func (c *Column) alignMain(parentSize basic.Size) {
+func (c *Column) align(parentSize basic.Size) {
 	content := c.GetSize()
 
+	var offsetX float32
 	var offsetY float32
+
+	// eixo principal (vertical)
 	switch c.MainAlign {
 	case basic.Start:
-		return
 	case basic.Center:
 		offsetY = (parentSize.H - content.H) / 2
 	case basic.End:
 		offsetY = parentSize.H - content.H
 	}
 
-	for _, w := range c.Children {
-		p := w.GetPos()
-		p.Y += offsetY
-		w.SetPos(p)
+	// eixo cruzado (horizontal)
+	switch c.CrossAlign {
+	case basic.Start:
+	case basic.Center:
+		offsetX = (parentSize.W - content.W) / 2
+	case basic.End:
+		offsetX = parentSize.W - content.W
 	}
-}
 
-func (c *Column) alignCross(parentSize basic.Size) {
 	for _, w := range c.Children {
-		size := w.GetSize()
 		p := w.GetPos()
 
-		switch c.CrossAlign {
-		case basic.Start:
-			continue
-		case basic.Center:
-			p.X = (parentSize.W - size.W) / 2
-		case basic.End:
-			p.X = parentSize.W - size.W
-		}
+		p.X += offsetX
+		p.Y += offsetY
 
 		w.SetPos(p)
 	}
@@ -117,8 +104,18 @@ func (c *Column) GetPos() basic.Point {
 	return c.Pos
 }
 
-func (c *Column) SetPos(point basic.Point) {
-	c.Pos = point
+func (c *Column) SetPos(p basic.Point) {
+	dx := p.X - c.Pos.X
+	dy := p.Y - c.Pos.Y
+
+	c.Pos = p
+
+	for _, w := range c.Children {
+		cp := w.GetPos()
+		cp.X += dx
+		cp.Y += dy
+		w.SetPos(cp)
+	}
 }
 
 // calcula tamanho (apenas no init)
@@ -150,13 +147,13 @@ func (c *Column) GetSize() basic.Size {
 
 // init serve para um primeiro posicionamento dos elementos (start x start)
 func (c *Column) init() {
-	cursorY := float32(0)
+	cursorY := c.Pos.Y
 
 	for i, w := range c.Children {
 		size := w.GetSize()
 
 		w.SetPos(basic.Point{
-			X: 0,
+			X: c.Pos.X,
 			Y: cursorY,
 		})
 

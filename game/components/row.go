@@ -40,17 +40,9 @@ func NewRow(
 	// 1) posiciona como Start/Start
 	r.init()
 
-	// 2) se ambos Start, não faz nada
-	if mainAlign == basic.Start && crossAlign == basic.Start {
-		return r
-	}
-
-	// 3) aplica alinhamentos relativos ao retângulo do pai iniciado em r.Pos
-	if mainAlign != basic.Start {
-		r.alignMain(parentSize)
-	}
-	if crossAlign != basic.Start {
-		r.alignCross(parentSize)
+	//aplica alinhamentos relativos ao retângulo do pai iniciado em r.Pos
+	if mainAlign != basic.Start || crossAlign != basic.Start {
+		r.align(parentSize)
 	}
 
 	return r
@@ -58,16 +50,17 @@ func NewRow(
 
 // posiciona filhos como Start/Start
 func (r *Row) init() {
-	cursorX := float32(0) // posição local relativa
+	cursorX := r.Pos.X
 
 	for _, w := range r.Children {
 		size := w.GetSize()
 		w.SetPos(basic.Point{
 			X: cursorX,
-			Y: 0, // local Y relativo
+			Y: r.Pos.Y,
 		})
 		cursorX += size.W + r.Spacing
 	}
+	//calcula tamanho da row
 	r.calcSize()
 }
 
@@ -86,43 +79,33 @@ func (r *Row) Draw(screen *ebiten.Image) {
 	}
 }
 
-// alinhamento no eixo principal (horizontal)
-func (r *Row) alignMain(parentSize basic.Size) {
+func (r *Row) align(parentSize basic.Size) {
 	content := r.GetSize()
 
 	var offsetX float32
+	var offsetY float32
+
+	// eixo principal (horizontal)
 	switch r.MainAlign {
-	case basic.Start:
-		return
 	case basic.Center:
 		offsetX = (parentSize.W - content.W) / 2
 	case basic.End:
 		offsetX = parentSize.W - content.W
 	}
 
-	for _, w := range r.Children {
-		p := w.GetPos()
-		// mantém o deslocamento relativo original dentro da Row
-		p.X = r.Pos.X + (p.X - r.Pos.X) + offsetX
-		w.SetPos(p)
+	// eixo cruzado (vertical)
+	switch r.CrossAlign {
+	case basic.Center:
+		offsetY = (parentSize.H - content.H) / 2
+	case basic.End:
+		offsetY = parentSize.H - content.H
 	}
-}
 
-// alinhamento no eixo cruzado (vertical)
-func (r *Row) alignCross(parentSize basic.Size) {
 	for _, w := range r.Children {
-		size := w.GetSize()
 		p := w.GetPos()
 
-		switch r.CrossAlign {
-		case basic.Start:
-			// mantém o Y relativo original
-		case basic.Center:
-			// centraliza verticalmente relativo à Row
-			p.Y = r.Pos.Y + (parentSize.H-size.H)/2
-		case basic.End:
-			p.Y = r.Pos.Y + (parentSize.H - size.H)
-		}
+		p.X = r.Pos.X + (p.X - r.Pos.X) + offsetX
+		p.Y = r.Pos.Y + (p.Y - r.Pos.Y) + offsetY
 
 		w.SetPos(p)
 	}
@@ -157,5 +140,16 @@ func (r *Row) GetSize() basic.Size {
 	return r.size
 }
 
-func (r *Row) SetPos(basic.Point) {
+func (r *Row) SetPos(p basic.Point) {
+	dx := p.X - r.Pos.X
+	dy := p.Y - r.Pos.Y
+
+	r.Pos = p
+
+	for _, w := range r.Children {
+		cp := w.GetPos()
+		cp.X += dx
+		cp.Y += dy
+		w.SetPos(cp)
+	}
 }
