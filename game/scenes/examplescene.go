@@ -49,17 +49,17 @@ func (e *ExampleScene) OnEnter(_ Scene, size basic.Size) {
 		basic.Size{W: 0.8 * size.W, H: 0.8 * size.H},
 		10.0,
 		colors.White,
-		basic.Center,
+		basic.Center, //funciona com filho "unico"
 		basic.Center,
 		&e.col,
 		func(c *components.Container) {},
 	)
 	e.col = *components.NewColumn(
-		basic.Point{},
+		basic.Point{}, //POSIÇÃO EM RELAÇÃO AO PAI !
 		10.0,
 		basic.Size{W: 0.8 * size.W, H: 0.8 * size.H},
-		basic.Start,
-		basic.Start,
+		basic.Center,
+		basic.Center,
 		buttons,
 	)
 
