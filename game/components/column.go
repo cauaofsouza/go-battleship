@@ -57,6 +57,13 @@ func NewColumn(
 		c.alignCross(parentSize)
 	}
 
+	for _, w := range c.Children {
+		p := w.GetPos()
+		p.X += c.Pos.X
+		p.Y += c.Pos.Y
+		w.SetPos(p)
+	}
+
 	return c
 }
 
@@ -65,7 +72,7 @@ func (c *Column) Update(offset basic.Point) {
 	c.currentPos = c.Pos.Add(offset)
 
 	for _, w := range c.Children {
-		w.Update(c.Pos.Add(offset))
+		w.Update(offset)
 	}
 }
 

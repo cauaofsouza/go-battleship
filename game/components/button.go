@@ -6,12 +6,12 @@ import (
 
 	"github.com/allanjose001/go-battleship/game/components/basic"
 	"github.com/allanjose001/go-battleship/game/components/basic/colors"
-	"github.com/allanjose001/go-battleship/game/util"
+	inputhelper "github.com/allanjose001/go-battleship/game/util"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-//Button struct que encapsula comportamento por meio de função callback, label, e um corpo que é um container
-//não é necessario preencher posição se estiver sendo alinhado em container, row ou column
+// Button struct que encapsula comportamento por meio de função callback, label, e um corpo que é um container
+// não é necessario preencher posição se estiver sendo alinhado em container, row ou column
 type Button struct {
 	pos, currentPos            basic.Point
 	size                       basic.Size
@@ -68,9 +68,15 @@ func (b *Button) Update(point basic.Point) {
 	//TODO: colocar som de hovered
 	b.hoverVerify(mouseX, mouseY)
 
-	b.clicked = inputhelper.IsClicked(mouseX, mouseY, b.pos, b.size)
+	b.clicked = inputhelper.IsClicked(mouseX, mouseY, b.currentPos, b.size)
 
 	b.body.Update(b.currentPos)
+
+	if b.clicked {
+		if b.CallBack != nil {
+			b.CallBack(b)
+		}
+	}
 
 }
 
@@ -83,7 +89,7 @@ func (b *Button) Draw(screen *ebiten.Image) {
 	b.body.Draw(screen)
 }
 
-//makeBody cria container com tamanho texto e cores designadas
+// makeBody cria container com tamanho texto e cores designadas
 func (b *Button) makeBody() {
 
 	if b.textColor == nil {
@@ -111,7 +117,7 @@ func (b *Button) makeBody() {
 
 // Hover verifica se o mouse está sob o botão
 func (b *Button) hoverVerify(mouseX, mouseY int) {
-	b.hovered = inputhelper.IsHovered(mouseX, mouseY, b.pos, b.size)
+	b.hovered = inputhelper.IsHovered(mouseX, mouseY, b.currentPos, b.size)
 
 	if b.hovered {
 		b.body.SetColor(b.hoverColor)
