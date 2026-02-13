@@ -88,9 +88,11 @@ func main() {
 
 	aiPlayer := ai.NewEasyAIPlayer();
 
+	for i := 0; i < 50; i++ {
 	aiPlayer.Attack(board1);
 
 	entity.PrintBoard(board1);
+	}
 
 	//========== teste de profile ===========
 
