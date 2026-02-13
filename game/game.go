@@ -16,7 +16,7 @@ type Game struct {
 
 func NewGame() *Game {
 	g := &Game{
-		scene: &scenes.ButtonScene{},
+		scene: &scenes.ExampleScene{},
 	}
 	g.scene.OnEnter(nil, windowSize) //escolher o teste no OnEnter dessa struct
 	return g

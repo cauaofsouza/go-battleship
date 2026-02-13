@@ -11,9 +11,11 @@ import (
 )
 
 // Button struct que encapsula comportamento por meio de função callback, label, e um corpo que é um container
-// não é necessario preencher posição se estiver sendo alinhado em container, row ou column
+// a posição é relativa a seu pai (ex: caso va alinhar (usar algo como center - center) e queira que siga seu
+// alinhamento, deixe em 0,0, caso queira mexer, ficará deslocado na posição alinhada + o valor da pos,
+// como se começasse na posição do pai)
 type Button struct {
-	pos, currentPos            basic.Point
+	pos, currentPos            basic.Point //POSIÇÃO RELATIVA AO PAI VS POSIÇÃO ATUAL NA TELA COMO UM TOD0 !
 	size                       basic.Size
 	label                      string
 	backgroundColor, textColor color.Color
@@ -66,11 +68,11 @@ func (b *Button) Update(point basic.Point) {
 	b.currentPos = b.pos.Add(point)
 
 	//TODO: colocar som de hovered
+	b.body.Update(b.currentPos)
+
 	b.hoverVerify(mouseX, mouseY)
 
-	b.clicked = inputhelper.IsClicked(mouseX, mouseY, b.currentPos, b.size)
-
-	b.body.Update(b.currentPos)
+	b.clickVerify(mouseX, mouseY)
 
 	if b.clicked {
 		if b.CallBack != nil {
@@ -109,9 +111,6 @@ func (b *Button) makeBody() {
 			b.textColor,
 			18, //VER SE ESSA FONTE DA
 		),
-		func(c *Container) {
-			//fazer aqui relação com callback
-		},
 	)
 }
 
@@ -123,5 +122,13 @@ func (b *Button) hoverVerify(mouseX, mouseY int) {
 		b.body.SetColor(b.hoverColor)
 	} else {
 		b.body.SetColor(b.backgroundColor)
+	}
+}
+
+func (b *Button) clickVerify(mouseX, mouseY int) {
+	b.clicked = inputhelper.IsClicked(mouseX, mouseY, b.currentPos, b.GetSize())
+
+	if b.clicked && b.CallBack != nil {
+		b.CallBack(b)
 	}
 }
