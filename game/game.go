@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/allanjose001/go-battleship/game/components"
+	//"github.com/allanjose001/go-battleship/game/state"
 	"github.com/allanjose001/go-battleship/game/components/basic"
 	"github.com/allanjose001/go-battleship/game/components/basic/colors"
 	"github.com/allanjose001/go-battleship/game/scenes"
@@ -25,7 +26,22 @@ func NewGame() *Game {
 	}
 
 	return g
+
+	// 1. Inicializa o estado global do jogo (onde ficam os dados de tabuleiros, etc)
+    //state := &state.GameState{} 
+
+    // 2. Cria a cena de perfil passando o estado
+    //g := &Game{
+        //scene: scenes.NewProfileScene(state),
+    //}
+
+    // 3. Notifica a cena que ela entrou em foco
+    //g.scene.OnEnter(nil, windowSize) 
+    
+    //return g
+
 }
+
 func (g *Game) Update() error {
 
 	if g.stack.IsEmpty() {
