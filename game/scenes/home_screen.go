@@ -10,13 +10,14 @@ import (
 )
 
 type HomeScreen struct {
-	layout     components.Widget //deixei tudo no layout
-	sairDoJogo bool
+	layout       components.Widget
+	StackHandler //faz composição (recebe os fields e metodos)
 }
 
 func (m *HomeScreen) OnExit(_ Scene) {}
 
 func (m *HomeScreen) OnEnter(_ Scene, screenSize basic.Size) {
+
 	err := m.init(screenSize)
 
 	if err != nil {
@@ -29,10 +30,6 @@ func (m *HomeScreen) Update() error {
 	if m.layout != nil {
 		m.layout.Update(basic.Point{X: 0, Y: 0})
 	}
-	if m.sairDoJogo {
-		return ebiten.Termination
-	}
-
 	return nil
 }
 
@@ -68,7 +65,7 @@ func (m *HomeScreen) init(screenSize basic.Size) error {
 				colors.Dark,
 				nil,
 				func(bt *components.Button) {
-					log.Println("Botão clicado!") // Aqui ficará a função que inicia o jogo (mudar para a tela de jogo)
+					//m.stack.Push() //TODO: colocar tela de ESCOLHA de perfis aqui
 				},
 			),
 
@@ -79,7 +76,8 @@ func (m *HomeScreen) init(screenSize basic.Size) error {
 				colors.Dark,
 				nil,
 				func(bt *components.Button) {
-					log.Println("Botão clicado!") // Aqui ficará a função que mostra o ranking (mudar para a tela de ranking)
+					//m.stack.Push() //TODO: ir para tela de Ranking
+					log.Println("Botão clicado!")
 				},
 			),
 
@@ -90,8 +88,7 @@ func (m *HomeScreen) init(screenSize basic.Size) error {
 				colors.Dark,
 				nil,
 				func(bt *components.Button) {
-					m.sairDoJogo = true
-					log.Println("Saindo do jogo...")
+					m.stack.Pop() //faz terminator em game
 				},
 			),
 		},

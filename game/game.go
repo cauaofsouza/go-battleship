@@ -1,10 +1,12 @@
 package game
 
 import (
-	"image/color"
+	"log"
 
-	"github.com/allanjose001/go-battleship/game/state"
+	"github.com/allanjose001/go-battleship/game/components"
+	//"github.com/allanjose001/go-battleship/game/state"
 	"github.com/allanjose001/go-battleship/game/components/basic"
+	"github.com/allanjose001/go-battleship/game/components/basic/colors"
 	"github.com/allanjose001/go-battleship/game/scenes"
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -12,32 +14,53 @@ import (
 var windowSize = basic.Size{W: 1280, H: 720}
 
 type Game struct {
-	scene scenes.Scene
+	// stack que gerencia as rotas das telas do jogo - é como um singleton (única para tod0 o jogo)
+	stack *scenes.SceneStack
 }
 
 func NewGame() *Game {
+	//inicializa fonte ao inicializar game
+	components.InitFonts()
+	g := &Game{
+		stack: scenes.NewSceneStack(windowSize, &scenes.HomeScreen{}), //incializa com primeira scene
+	}
+
+	return g
+
 	// 1. Inicializa o estado global do jogo (onde ficam os dados de tabuleiros, etc)
-    state := &state.GameState{} 
+    //state := &state.GameState{} 
 
     // 2. Cria a cena de perfil passando o estado
-    g := &Game{
-        scene: scenes.NewProfileScene(state),
-    }
+    //g := &Game{
+        //scene: scenes.NewProfileScene(state),
+    //}
 
     // 3. Notifica a cena que ela entrou em foco
-    g.scene.OnEnter(nil, windowSize) 
+    //g.scene.OnEnter(nil, windowSize) 
     
-    return g
+    //return g
+
 }
 
 func (g *Game) Update() error {
-	err := g.scene.Update()
-	return err
+
+	if g.stack.IsEmpty() {
+		return ebiten.Termination
+	}
+	err := g.stack.Update()
+	if err != nil {
+		log.Fatal("Erro em stack.Update(): ", err)
+	}
+	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{R: 30, G: 30, B: 30, A: 255})
-	g.scene.Draw(screen)
+	//pinta background
+	screen.Fill(colors.Background)
+
+	if !g.stack.IsEmpty() {
+		g.stack.Draw(screen)
+	}
 }
 
 func (g *Game) Layout(_, _ int) (int, int) {
