@@ -105,6 +105,11 @@ func (r *Row) align(parentSize basic.Size) {
 		//alinha eixo cruzado individualmente
 		switch r.CrossAlign {
 		case basic.Start:
+			p.Y = r.Pos.Y // começa no início
+		case basic.Center:
+			p.Y = r.Pos.Y + (parentSize.H-childHeight)/2
+		case basic.End:
+			p.Y = r.Pos.Y + (parentSize.H - childHeight)
 		}
 
 		//adiciona o offset do main axis
