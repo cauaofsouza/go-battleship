@@ -27,7 +27,7 @@ func (ai *AIPlayer) AdjustStrategy(board *entity.Board, row, y int, ship *entity
 
 	if ship.IsDestroyed() {
 		ai.virtualBoard[row][y] = 3
-		ai.WreckedShipAdjustment(board, row, y)
+		//ai.WreckedShipAdjustment(board, row, y)
 		ai.ClearPriorityQueue()
 		ai.FleetShipDestroyed(ship.Size)
 		ai.StopChase()
