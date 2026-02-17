@@ -1,0 +1,19 @@
+[
+  {
+    "username": "caua de souza",
+    "player_stats": {
+      "matches": 0,
+      "wins": 0,
+      "total_shots": 0,
+      "total_hits": 0,
+      "high_score": 0,
+      "higher_sequence": 0,
+      "faster_time": 0,
+      "win_without_losses": false
+    },
+    "medals": [
+      "Marinheiro",
+      "Capitão"
+    ]
+  }
+]
