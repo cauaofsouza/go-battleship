@@ -5,22 +5,29 @@ import (
 	"github.com/allanjose001/go-battleship/game/components/basic"
 	"github.com/allanjose001/go-battleship/game/components/basic/colors"
 	"github.com/allanjose001/go-battleship/game/state"
-	"github.com/allanjose001/go-battleship/internal/service"
+	"github.com/allanjose001/go-battleship/internal/entity"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // ProfileScene representa a tela de perfil do jogador.
 type ProfileScene struct {
 	state   *state.GameState
-	profile *service.Profile
+	profile *entity.Profile
 	root    *components.Column // O container pai que envolve toda a cena.
+}
+
+func NewProfileSceneWithProfile(p *entity.Profile) *ProfileScene {
+	return &ProfileScene{
+		profile: p,
+	}
 }
 
 // init Funcão que inicializa componentes
 func (p *ProfileScene) init(size basic.Size) {
-	// Recupera os dados do jogador do serviço
-	//TODO: Isso é um state passado da cena de seleção de perfis, carregado lá
-	//profile, _ := service.FindProfile("malub")
+	playerName := "Nome do player aqui"
+	if p.profile != nil && p.profile.Username != "" {
+		playerName = p.profile.Username
+	}
 
 	medals := loadMedals()
 
@@ -47,8 +54,8 @@ func (p *ProfileScene) init(size basic.Size) {
 				//TODO: Criar o tipo datastats para facilitar isso, e facilitar carregar/salvar no json em profile
 				size, //usa tamanho da tela para caso mude a resolução
 				2999, 200, 90000, 62, 80,
-				false,                 //para reutilizar em ranking
-				"Nome do player aqui", //mock, precisa melhorar profile pra ter tudo
+				false, //para reutilizar em ranking
+				playerName,
 			),
 			//medalhas
 			components.NewText(basic.Point{}, "MURAL DE MEDALHAS", colors.White, 28),
@@ -75,7 +82,11 @@ func (p *ProfileScene) init(size basic.Size) {
 				"Retornar",
 				colors.Dark,
 				colors.White,
-				func(b *components.Button) {},
+				func(b *components.Button) {
+					if SwitchTo != nil {
+						SwitchTo(&SelectProfileScene{})
+					}
+				},
 			),
 		},
 	)
@@ -102,11 +113,7 @@ func loadMedals() *[]components.Widget {
 
 // Implementações do contrato Scene
 func (p *ProfileScene) OnEnter(prev Scene, size basic.Size) {
-	// Atualiza os dados do perfil ao entrar na cena
-	profile, _ := service.FindProfile("malub")
-	p.profile = profile
 	p.init(size)
-
 }
 
 func (p *ProfileScene) OnExit(next Scene) {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/allanjose001/go-battleship/internal/entity"
 	"github.com/allanjose001/go-battleship/internal/medal"
@@ -76,6 +77,11 @@ func UpdateProfile(profile entity.Profile) error {
 
 	if !updated {
 		profiles = append(profiles, profile)
+	}
+
+	dir := filepath.Dir(defaultPath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
 	}
 
 	data, err := json.MarshalIndent(profiles, "", "  ")
