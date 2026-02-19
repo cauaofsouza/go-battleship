@@ -32,17 +32,17 @@ func NewGame() *Game {
 	return g
 
 	// 1. Inicializa o estado global do jogo (onde ficam os dados de tabuleiros, etc)
-    //state := &state.GameState{} 
+	//state := &state.GameState{}
 
-    // 2. Cria a cena de perfil passando o estado
-    //g := &Game{
-        //scene: scenes.NewProfileScene(state),
-    //}
+	// 2. Cria a cena de perfil passando o estado
+	//g := &Game{
+	//scene: scenes.NewProfileScene(state),
+	//}
 
-    // 3. Notifica a cena que ela entrou em foco
-    //g.scene.OnEnter(nil, windowSize) 
-    
-    //return g
+	// 3. Notifica a cena que ela entrou em foco
+	//g.scene.OnEnter(nil, windowSize)
+
+	//return g
 
 }
 

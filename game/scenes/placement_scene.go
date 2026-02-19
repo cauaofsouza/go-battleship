@@ -8,6 +8,7 @@ import (
 	"github.com/allanjose001/go-battleship/game/components/basic/colors"
 	"github.com/allanjose001/go-battleship/game/shared/board"
 	"github.com/allanjose001/go-battleship/game/shared/placement"
+	"github.com/allanjose001/go-battleship/internal/entity"
 	"github.com/allanjose001/go-battleship/internal/service"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -39,6 +40,8 @@ type PlacementScene struct {
 	// board e ships são usados para construir o GameState de batalha
 	board *board.Board
 	ships []*placement.ShipPlacement
+	// perfil do jogador selecionado na tela anterior
+	playerProfile *entity.Profile
 	// container com a linha de botões sob o tabuleiro (Aleatório, Rotacionar)
 	leftButtons components.Widget
 	// playerLabel mostra o texto "Jogador 1" alinhado ao tabuleiro
@@ -52,8 +55,11 @@ type PlacementScene struct {
 
 // NewPlacementScene cria uma cena de posicionamento vazia.
 // A configuração completa é feita em OnEnter.
-func NewPlacementScene() *PlacementScene {
-	return &PlacementScene{}
+func NewPlacementScene() *PlacementScene { return &PlacementScene{} }
+
+// NewPlacementSceneWithProfile cria a cena já com o perfil do jogador selecionado
+func NewPlacementSceneWithProfile(p *entity.Profile) *PlacementScene {
+	return &PlacementScene{playerProfile: p}
 }
 
 // OnEnter é chamado quando a cena entra em foco.
@@ -109,7 +115,11 @@ func (s *PlacementScene) OnEnter(prev Scene, size basic.Size) {
 
 			factory := service.NewGameService()
 			gs := factory.NewBattleGameState(s.board, s.ships)
-			SwitchTo(NewBattleScene(gs))
+			if s.playerProfile != nil {
+				SwitchTo(NewBattleSceneWithPlayer(gs, s.playerProfile))
+			} else {
+				SwitchTo(NewBattleScene(gs))
+			}
 		},
 	)
 
@@ -179,9 +189,13 @@ func (s *PlacementScene) OnEnter(prev Scene, size basic.Size) {
 	)
 
 	// Cria o rótulo com o nome do jogador
+	labelText := "Jogador 1"
+	if s.playerProfile != nil && s.playerProfile.Username != "" {
+		labelText = s.playerProfile.Username
+	}
 	s.playerLabel = components.NewText(
 		basic.Point{X: 250, Y: 520},
-		"Jogador 1",
+		labelText,
 		colors.White,
 		24,
 	)

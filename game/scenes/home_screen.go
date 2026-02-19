@@ -66,9 +66,8 @@ func (m *HomeScreen) init(screenSize basic.Size) error {
 				colors.Dark,
 				nil,
 				func(bt *components.Button) {
-					//TODO: colocar tela de ESCOLHA de perfis aqui (BETA RELEASE)
-					fmt.Println("Jogar")
-					m.stack.Push(&PlacementScene{})
+					// ir para tela de seleção de perfis
+					SwitchTo(&SelectProfileScene{})
 				},
 			),
 

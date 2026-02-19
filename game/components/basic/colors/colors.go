@@ -9,6 +9,7 @@ var (
 	Red         = color.RGBA{R: 255, A: 255}
 	CloudySky   = color.RGBA{R: 100, G: 100, B: 110, A: 255}
 	NightBlue   = color.RGBA{R: 40, G: 40, B: 50, A: 255}
+	PlayerInput = color.RGBA{R: 65, G: 81, B: 100, A: 255} // #415164
 	Dark        = color.RGBA{R: 48, G: 67, B: 103, A: 255}
 	Transparent = color.RGBA{}
 	Background  = color.RGBA{R: 13, G: 27, B: 42, A: 255}

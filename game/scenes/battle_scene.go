@@ -12,6 +12,7 @@ import (
 	"github.com/allanjose001/go-battleship/game/shared/placement"
 	"github.com/allanjose001/go-battleship/game/state"
 	"github.com/allanjose001/go-battleship/internal/assets"
+	"github.com/allanjose001/go-battleship/internal/entity"
 	"github.com/allanjose001/go-battleship/internal/service"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -27,6 +28,8 @@ type BattleScene struct {
 	backButtonRow *components.Row
 	// playerShips guarda os navios posicionados na fase de placement
 	playerShips []*placement.ShipPlacement
+	// perfil do jogador humano
+	playerProfile *entity.Profile
 
 	hitImage   *ebiten.Image
 	missImage  *ebiten.Image
@@ -52,6 +55,19 @@ func NewBattleScene(gs *state.GameState) *BattleScene {
 	return &BattleScene{
 		svc:         svc,
 		playerShips: ships,
+	}
+}
+
+// NewBattleSceneWithPlayer cria a cena de batalha recebendo também o perfil do jogador
+func NewBattleSceneWithPlayer(gs *state.GameState, p *entity.Profile) *BattleScene {
+	ships, _ := gs.PlayerShips.([]*placement.ShipPlacement)
+	gameSvc := service.NewGameService()
+	svc := service.NewBattleService(gs, gameSvc, ships)
+
+	return &BattleScene{
+		svc:           svc,
+		playerShips:   ships,
+		playerProfile: p,
 	}
 }
 
@@ -83,7 +99,11 @@ func (s *BattleScene) OnEnter(prev Scene, size basic.Size) {
 				color.RGBA{48, 67, 103, 255},
 				colors.White,
 				func(b *components.Button) {
-					SwitchTo(NewPlacementScene())
+					if s.playerProfile != nil {
+						SwitchTo(NewPlacementSceneWithProfile(s.playerProfile))
+					} else {
+						SwitchTo(NewPlacementScene())
+					}
 				},
 			),
 		},
@@ -101,14 +121,19 @@ func (s *BattleScene) OnEnter(prev Scene, size basic.Size) {
 	s.missImage = miss
 
 	playerBaseX := playerBoard.X
-	playerBaseY := playerBoard.Y + playerBoard.Size + 20
+	playerBaseY := playerBoard.Y + playerBoard.Size + 40
 
 	aiBaseX := aiBoard.X
-	aiBaseY := aiBoard.Y + aiBoard.Size + 20
+	aiBaseY := aiBoard.Y + aiBoard.Size + 40
 
 	s.playerNameLabel = components.NewText(
 		basic.Point{X: float32(playerBaseX + 30), Y: float32(playerBaseY)},
-		"Jogador 1",
+		func() string {
+			if s.playerProfile != nil && s.playerProfile.Username != "" {
+				return s.playerProfile.Username
+			}
+			return "Jogador 1"
+		}(),
 		colors.White,
 		20,
 	)
@@ -127,7 +152,7 @@ func (s *BattleScene) OnEnter(prev Scene, size basic.Size) {
 
 	s.aiNameLabel = components.NewText(
 		basic.Point{X: float32(aiBaseX + 30), Y: float32(aiBaseY)},
-		"Jogador 2",
+		"IA_MAR",
 		colors.White,
 		20,
 	)
@@ -153,6 +178,15 @@ func (s *BattleScene) OnExit(next Scene) {}
 // Se algum jogador vencer, a cena muda para a tela de Game Over.
 func (s *BattleScene) Update() error {
 	s.backButtonRow.Update(basic.Point{})
+
+	// atualiza posições dos rótulos de nome e estatísticas
+	s.playerNameLabel.Update(basic.Point{})
+	s.playerAttemptsLabel.Update(basic.Point{})
+	s.playerHitsLabel.Update(basic.Point{})
+
+	s.aiNameLabel.Update(basic.Point{})
+	s.aiAttemptsLabel.Update(basic.Point{})
+	s.aiHitsLabel.Update(basic.Point{})
 
 	// Clique do mouse no tabuleiro do inimigo (AI)
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
