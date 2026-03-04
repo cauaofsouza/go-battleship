@@ -58,7 +58,7 @@ func (a *FireAnimation) CurrentFrame() *ebiten.Image {
 		if frameDuration == 0 {
 			frameDuration = 100 // Valor padrão de segurança.
 		}
-		
+
 		// Se o tempo do ciclo for menor que o tempo acumulado até o final deste frame,
 		// então este é o frame atual.
 		if cycleTime < currentDuration+frameDuration {

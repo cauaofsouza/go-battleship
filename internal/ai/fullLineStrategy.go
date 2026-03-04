@@ -25,10 +25,18 @@ func (s *FullLineStrategy) TryAttack(ai *AIPlayer, board *entity.Board) bool {
 		// Detecta orientação baseada em acertos anteriores
 		horizontal := false
 		vertical := false
-		if ai.IsValidForTesting(row, col-1) && ai.virtualBoard[row][col-1] == 2 { horizontal = true }
-		if ai.IsValidForTesting(row, col+1) && ai.virtualBoard[row][col+1] == 2 { horizontal = true }
-		if ai.IsValidForTesting(row-1, col) && ai.virtualBoard[row-1][col] == 2 { vertical = true }
-		if ai.IsValidForTesting(row+1, col) && ai.virtualBoard[row+1][col] == 2 { vertical = true }
+		if ai.IsValidForTesting(row, col-1) && ai.virtualBoard[row][col-1] == 2 {
+			horizontal = true
+		}
+		if ai.IsValidForTesting(row, col+1) && ai.virtualBoard[row][col+1] == 2 {
+			horizontal = true
+		}
+		if ai.IsValidForTesting(row-1, col) && ai.virtualBoard[row-1][col] == 2 {
+			vertical = true
+		}
+		if ai.IsValidForTesting(row+1, col) && ai.virtualBoard[row+1][col] == 2 {
+			vertical = true
+		}
 
 		ai.ClearPriorityQueue()
 
