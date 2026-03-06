@@ -54,6 +54,7 @@ type AttackEvent struct {
 type Match struct {
 	ID     string      `json:"id"`
 	Status MatchStatus `json:"status"`
+	Difficulty string  `json:"difficulty"`
 
 	Turn   TurnOwner `json:"turn"`
 	Winner TurnOwner `json:"winner"` // "" enquanto não terminou
@@ -95,9 +96,10 @@ type Match struct {
 	PlayerFleet       *Fleet `json:"-"`
 }
 
-func NewMatch(id string, playerBoard, aiBoard *board.Board, ships []*placement.ShipPlacement, profile *Profile) *Match {
+func NewMatch(id string, difficulty string, playerBoard, aiBoard *board.Board, ships []*placement.ShipPlacement, profile *Profile) *Match {
 	return &Match{
 		ID:          id,
+		Difficulty:  difficulty,
 		Status:      MatchStatusWaiting,
 		Turn:        TurnPlayer,
 		Winner:      "",

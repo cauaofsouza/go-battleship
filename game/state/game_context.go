@@ -7,6 +7,7 @@ type GameContext struct {
 	Profile       *entity.Profile
 	Match         *entity.Match
 	BattleService BattleService
+	Difficulty string
 }
 
 type ContextAware interface {
@@ -36,4 +37,8 @@ func (c *GameContext) SetMatch(m *entity.Match) {
 
 func (c *GameContext) SetBattleService(s BattleService) {
 	c.BattleService = s
+}
+
+func (c *GameContext) SetDifficulty(d string) {
+    c.Difficulty = d
 }
