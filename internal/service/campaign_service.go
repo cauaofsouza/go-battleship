@@ -54,7 +54,7 @@ func (cs *CampaignService) StartCampaignMatch(
 	opponent := cs.selectAI(diff, fleet)
 
 	// Cria o objeto de partida em memória
-	match := cs.matchService.Create(profile.CurrentCampaign.ID)
+	match := cs.matchService.Create(profile.CurrentCampaign.ID, diff)
 
 	// Inicia os estados da partida (Turnos, Timers, etc)
 	err = cs.matchService.Start(

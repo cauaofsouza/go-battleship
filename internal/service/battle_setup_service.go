@@ -1,12 +1,9 @@
-// BattleSetupService: inicializa as estruturas que a IA usa na batalha.
-// Responsável por:
-// - Criar a Fleet (entidade lógica de navios) usada pela IA
-// - Mapear placements visuais do jogador (board.Board + ShipPlacement)
-//   para a representação lógica (entity.Board + entity.Ship)
-// - Instanciar o AIPlayer com a fleet resultante
 package service
 
 import (
+	"fmt"
+	"reflect"
+
 	"github.com/allanjose001/go-battleship/game/shared/board"
 	"github.com/allanjose001/go-battleship/game/shared/placement"
 	"github.com/allanjose001/go-battleship/internal/ai"
@@ -19,17 +16,17 @@ func NewBattleSetupService() *BattleSetupService {
 	return &BattleSetupService{}
 }
 
-// InitBattleAI:
-// - Varre os navios posicionados pelo jogador e procura correspondentes na Fleet
-// - Respeita orientação e posição (X/Y) ao colocar no entity.Board
-// - Cria um AIPlayer “hard” com estratégias combinadas
-// - Retorna o AIPlayer, o board lógico e a fleet que ele rastreia
-func (s *BattleSetupService) InitBattleAI(playerShips []*placement.ShipPlacement) (*ai.AIPlayer, *entity.Board, *entity.Fleet) {
+// InitBattleAI inicializa a inteligência artificial com base na dificuldade selecionada.
+// Parâmetros:
+// - difficulty: string que define o nível ("easy", "medium", "hard")
+// - playerShips: os navios que o jogador posicionou (usados para espelhar a frota da IA)
+func (s *BattleSetupService) InitBattleAI(difficulty string, playerShips []*placement.ShipPlacement) (*ai.AIPlayer, *entity.Board, *entity.Fleet) {
 	fleet := entity.NewFleet()
 	entityBoard := &entity.Board{}
 
 	usedShips := make(map[int]bool)
 
+	// Mapeamento dos navios posicionados para a estrutura lógica da IA
 	for _, ps := range playerShips {
 		if !ps.Placed {
 			continue
@@ -50,7 +47,21 @@ func (s *BattleSetupService) InitBattleAI(playerShips []*placement.ShipPlacement
 		}
 	}
 
-	aiPlayer := ai.NewHardAIPlayer(fleet)
+	var aiPlayer *ai.AIPlayer
+
+	fmt.Printf("Iniciando batalha com dificuldade: %s\n", difficulty)
+	
+	switch difficulty {
+	case "easy":
+		aiPlayer = ai.NewEasyAIPlayer()
+	case "medium":
+		aiPlayer = ai.NewMediumAIPlayer(fleet)
+	case "hard":
+		aiPlayer = ai.NewHardAIPlayer(fleet)
+	default:
+		aiPlayer = ai.NewEasyAIPlayer()
+	}
+	fmt.Printf("AI Player Instanciado: %v\n", reflect.TypeOf(aiPlayer))
 
 	return aiPlayer, entityBoard, fleet
 }

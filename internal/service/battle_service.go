@@ -37,20 +37,17 @@ type battleService struct {
 // NewBattleServiceFromMatch inicializa o serviço a partir de um Match existente no contexto.
 // Se o Match ainda não foi inicializado (runtime), ele configura a IA e inicia o jogo.
 func NewBattleServiceFromMatch(match *entity.Match) (BattleService, error) {
-	// Cria o serviço de setup (para IA) e o serviço de partida (regras)
 	setupSvc := NewBattleSetupService()
 	matchSvc := NewMatchService(nil, 500*time.Millisecond)
 
 	var aiPlayer *ai.AIPlayer
 
-	// Se PlayerEntityBoard for nil, significa que a IA ainda não foi configurada para este Match.
 	if match.PlayerEntityBoard == nil {
-		// Inicializa a IA, criando o tabuleiro lógico e a frota da IA
 		var entityBoard *entity.Board
 		var fleet *entity.Fleet
-		aiPlayer, entityBoard, fleet = setupSvc.InitBattleAI(match.PlayerShips)
 
-		// Calcula o total de células ocupadas por navios do jogador (vida do player)
+		aiPlayer, entityBoard, fleet = setupSvc.InitBattleAI(match.Difficulty, match.PlayerShips)
+
 		totalCells := 0
 		for _, ship := range match.PlayerShips {
 			if ship != nil {
@@ -58,8 +55,6 @@ func NewBattleServiceFromMatch(match *entity.Match) (BattleService, error) {
 			}
 		}
 
-		// Inicia a partida (Start) para configurar os ponteiros runtime no Match e mudar status para InProgress
-		// Note que passamos match.PlayerBoard e match.EnemyBoard que vieram do PlacementScene
 		if err := matchSvc.Start(
 			match,
 			time.Now(),
@@ -67,17 +62,23 @@ func NewBattleServiceFromMatch(match *entity.Match) (BattleService, error) {
 			match.EnemyBoard,
 			entityBoard,
 			fleet,
-			totalCells, // Vida do Player
-			totalCells, // Vida da IA (simétrica)
+			totalCells,
+			totalCells,
 		); err != nil {
 			return nil, err
 		}
 	} else {
-		// Se já existe PlayerEntityBoard, estamos retomando um Match (ex: persistência futura).
-		// Precisamos recriar o AIPlayer com a frota existente.
-		// OBS: Se a IA tiver estado interno complexo (memória de tiros), precisaria ser restaurado aqui.
-		// Por enquanto, recriamos com a frota salva no Match.
-		aiPlayer = ai.NewHardAIPlayer(match.PlayerFleet)
+	
+		switch match.Difficulty {
+		case "easy":
+			aiPlayer = ai.NewEasyAIPlayer()
+		case "medium":
+			aiPlayer = ai.NewMediumAIPlayer(match.PlayerFleet)
+		case "hard":
+			aiPlayer = ai.NewHardAIPlayer(match.PlayerFleet)
+		default:
+			aiPlayer = ai.NewEasyAIPlayer()
+		}
 	}
 
 	return &battleService{
