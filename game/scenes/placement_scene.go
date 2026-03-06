@@ -131,7 +131,13 @@ func (s *PlacementScene) OnEnter(prev Scene, size basic.Size) {
 			gs := factory.NewBattleGameState(s.board, s.ships)
 
 			matchID := fmt.Sprintf("match-%d", time.Now().UnixNano())
-			match := entity.NewMatch(matchID, gs.PlayerBoard, gs.AIBoard, s.ships, s.playerProfile)
+
+			diff := "easy"
+			if s.ctx != nil && s.ctx.Difficulty != "" {
+				diff = s.ctx.Difficulty
+			}
+
+			match := entity.NewMatch(matchID, diff, gs.PlayerBoard, gs.AIBoard, s.ships, s.playerProfile)
 
 			svc, err := service.NewBattleServiceFromMatch(match)
 			if err != nil {

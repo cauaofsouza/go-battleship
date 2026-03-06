@@ -4,7 +4,6 @@ import (
     "github.com/allanjose001/go-battleship/game/components"
     "github.com/allanjose001/go-battleship/game/components/basic"
     "github.com/allanjose001/go-battleship/game/components/basic/colors"
-    "github.com/allanjose001/go-battleship/internal/ai"
     "github.com/allanjose001/go-battleship/internal/entity"
     "github.com/hajimehoshi/ebiten/v2"
 )
@@ -80,15 +79,16 @@ type DifficultyScene struct {
 }
 
 func (d *DifficultyScene) OnEnter(prev Scene, size basic.Size) {
-    // cria o DifficultyMenu e passa callback
-    d.menu = NewDifficultyMenu(int(size.W), int(size.H), func(player *ai.AIPlayer) {
-        // após escolher dificuldade, segue para PlacementScene com profile do contexto
-        var prof *entity.Profile
-        if d.ctx != nil {
-            prof = d.ctx.Profile
-        }
-        d.stack.Push(NewPlacementSceneWithProfile(prof))
-    })
+	d.menu = NewDifficultyMenu(int(size.W), int(size.H), func(diff string) {
+		
+		var prof *entity.Profile
+		if d.ctx != nil {
+			d.ctx.SetDifficulty(diff)
+			prof = d.ctx.Profile
+		}
+
+		d.stack.Push(NewPlacementSceneWithProfile(prof))
+	})
 }
 
 func (d *DifficultyScene) OnExit(next Scene) {}
