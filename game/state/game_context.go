@@ -11,7 +11,8 @@ type GameContext struct {
 	Match         *entity.Match
 	BattleService BattleService
 	SoundService  *audio.SoundService
-	Difficulty string
+	Difficulty    string
+	CanPopOrPush  bool
 }
 
 type ContextAware interface {
@@ -29,6 +30,7 @@ func NewGameContext() *GameContext {
 
 	return &GameContext{
 		SoundService: ss,
+		CanPopOrPush: true,
 	}
 }
 
@@ -40,8 +42,6 @@ type BattleService interface {
 	Stats() (playerShots, playerHits, enemyShots, enemyHits int, isPlayerTurn bool)
 	WinnerName() string
 }
-
-
 
 func (c *GameContext) SetProfile(p *entity.Profile) {
 	c.Profile = p
@@ -56,5 +56,5 @@ func (c *GameContext) SetBattleService(s BattleService) {
 }
 
 func (c *GameContext) SetDifficulty(d string) {
-    c.Difficulty = d
+	c.Difficulty = d
 }
