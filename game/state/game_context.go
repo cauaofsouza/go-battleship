@@ -8,6 +8,7 @@ type GameContext struct {
 	Match         *entity.Match
 	BattleService BattleService
 	Difficulty string
+	IsCampaign bool
 }
 
 type ContextAware interface {

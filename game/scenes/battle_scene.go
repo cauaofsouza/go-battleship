@@ -6,6 +6,7 @@ import (
 	"github.com/allanjose001/go-battleship/game/components"
 	"github.com/allanjose001/go-battleship/game/components/basic"
 	"github.com/allanjose001/go-battleship/game/components/basic/colors"
+	"github.com/allanjose001/go-battleship/internal/entity"
 	"github.com/allanjose001/go-battleship/internal/service"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -147,9 +148,21 @@ func (s *BattleScene) OnEnter(prev Scene, size basic.Size) {
 		16,
 	)
 
+	aiName := "IA_MAR"
+	if s.ctx.IsCampaign {
+		switch s.ctx.Difficulty {
+		case "easy":
+			aiName = "Recruta Bot"
+		case "medium":
+			aiName = "Imediato Bot"
+		case "hard":
+			aiName = "Almirante Bot"
+		}
+	}
+
 	aiNameLabel := components.NewText(
 		basic.Point{X: float32(aiBaseX + 30), Y: float32(aiBaseY)},
-		"IA_MAR",
+		aiName,
 		colors.White,
 		20,
 	)
@@ -199,18 +212,58 @@ func (s *BattleScene) Update() error {
 		row, col, ok := s.inputCtrl.ClickedCell()
 		if ok {
 			if res, err := s.battleSvc.HandlePlayerClick(row, col); err == nil && res != nil {
-				SwitchTo(NewGameOverScene(s.battleSvc.WinnerName()))
+				s.handleMatchEnd(res)
 				return nil
 			}
 		}
 	}
 
 	if res, err := s.battleSvc.HandleEnemyTurn(); err == nil && res != nil {
-		SwitchTo(NewGameOverScene(s.battleSvc.WinnerName()))
+		s.handleMatchEnd(res)
 		return nil
 	}
 
 	return nil
+}
+
+// handleMatchEnd centraliza a lógica de fim de jogo e fluxo de campanha
+func (s *BattleScene) handleMatchEnd(res *entity.MatchResult) {
+	s.checkCampaignProgress(res)
+
+	winner := s.battleSvc.WinnerName()
+	isWin := res.Win
+	actionLabel := "Clique para Recomeçar"
+
+	// Ação padrão (Partida Clássica ou Derrota)
+	onAction := func() {
+		if s.ctx.Profile != nil {
+			SwitchTo(NewPlacementSceneWithProfile(s.ctx.Profile))
+		} else {
+			SwitchTo(NewPlacementScene())
+		}
+	}
+
+	// Lógica específica de Campanha
+	if s.ctx != nil && s.ctx.IsCampaign {
+		actionLabel = "Voltar para Campanha"
+		onAction = func() {
+			SwitchTo(&CampaignScene{})
+		}
+	}
+
+	SwitchTo(NewGameOverScene(winner, isWin, actionLabel, onAction))
+}
+
+// checkCampaignProgress salva o progresso se estiver no modo campanha
+func (s *BattleScene) checkCampaignProgress(res *entity.MatchResult) {
+	if s.ctx != nil && s.ctx.IsCampaign && s.ctx.Profile != nil && s.ctx.Profile.CurrentCampaign != nil {
+		// Atualiza o passo atual da campanha com o resultado
+		s.ctx.Profile.CurrentCampaign.DifficultyStep[s.ctx.Difficulty] = *res
+		
+		// Salva o perfil atualizado no disco
+		// (BattleService já salvou histórico, agora salvamos o estado da campanha)
+		service.UpdateProfile(*s.ctx.Profile)
+	}
 }
 
 // Draw desenha o estado atual da batalha e o botão de recomeçar.
@@ -240,5 +293,6 @@ func (s *BattleScene) Draw(screen *ebiten.Image) {
 		s.boardView.DrawBoard(screen, playerBoard, match.PlayerShips)
 		s.boardView.DrawBoard(screen, aiBoard, nil)
 	}
+
 	s.backButtonContainer.Draw(screen)
 }

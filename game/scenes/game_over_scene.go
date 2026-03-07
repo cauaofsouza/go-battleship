@@ -15,6 +15,9 @@ import (
 
 type GameOverScene struct {
 	winnerName  string
+	isWin       bool
+	actionLabel string
+	onAction    func()
 	danceFrames []*ebiten.Image
 	danceDelays []int
 	currentImg  *ebiten.Image
@@ -24,9 +27,13 @@ type GameOverScene struct {
 	restartLabel  *components.Text
 }
 
-func NewGameOverScene(winnerName string) *GameOverScene {
+// NewGameOverScene cria tela de fim de jogo com suporte a ações customizadas (ex: campanha)
+func NewGameOverScene(winnerName string, isWin bool, actionLabel string, onAction func()) *GameOverScene {
 	return &GameOverScene{
-		winnerName: winnerName,
+		winnerName:  winnerName,
+		isWin:       isWin,
+		actionLabel: actionLabel,
+		onAction:    onAction,
 	}
 }
 
@@ -50,9 +57,14 @@ func (s *GameOverScene) OnEnter(prev Scene, size basic.Size) {
 	}
 
 	// Textos
+	titleText := "PARABÉNS!"
+	if !s.isWin {
+		titleText = "DERROTA..."
+	}
+
 	s.congratsLabel = components.NewText(
 		basic.Point{X: 0, Y: 50}, // Mais no topo
-		"PARABÉNS!",
+		titleText,
 		colors.White,
 		48,
 	)
@@ -66,7 +78,7 @@ func (s *GameOverScene) OnEnter(prev Scene, size basic.Size) {
 
 	s.restartLabel = components.NewText(
 		basic.Point{X: 0, Y: 600},
-		"Clique para Recomeçar",
+		s.actionLabel,
 		color.RGBA{200, 200, 200, 255},
 		24,
 	)
@@ -117,7 +129,9 @@ func (s *GameOverScene) Update() error {
 
 	// Clique para reiniciar
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		SwitchTo(NewPlacementScene())
+		if s.onAction != nil {
+			s.onAction()
+		}
 	}
 
 	return nil

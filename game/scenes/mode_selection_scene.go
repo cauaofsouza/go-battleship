@@ -1,11 +1,11 @@
 package scenes
 
 import (
-    "github.com/allanjose001/go-battleship/game/components"
-    "github.com/allanjose001/go-battleship/game/components/basic"
-    "github.com/allanjose001/go-battleship/game/components/basic/colors"
-    "github.com/allanjose001/go-battleship/internal/entity"
-    "github.com/hajimehoshi/ebiten/v2"
+	"github.com/allanjose001/go-battleship/game/components"
+	"github.com/allanjose001/go-battleship/game/components/basic"
+	"github.com/allanjose001/go-battleship/game/components/basic/colors"
+	"github.com/allanjose001/go-battleship/internal/entity"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // ModeSelectionScene permite escolher entre Partida Clássica e Campanha.
@@ -32,7 +32,7 @@ func (m *ModeSelectionScene) OnEnter(prev Scene, size basic.Size) {
         if m.ctx != nil && m.profile != nil {
             m.ctx.Profile = m.profile
         }
-        m.stack.Push(NewPlacementSceneWithProfile(m.profile))
+        m.stack.Push(&CampaignScene{})
     })
 
     backBtn := components.NewButton(basic.Point{}, basic.Size{W: 220, H: 50}, "Voltar", colors.Dark, nil, func(b *components.Button) {
@@ -84,6 +84,7 @@ func (d *DifficultyScene) OnEnter(prev Scene, size basic.Size) {
 		var prof *entity.Profile
 		if d.ctx != nil {
 			d.ctx.SetDifficulty(diff)
+			d.ctx.IsCampaign = false
 			prof = d.ctx.Profile
 		}
 
