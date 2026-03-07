@@ -37,7 +37,7 @@ func (s *GameOverScene) setupGameOverLayout(size basic.Size) {
 	titleText := "VOCÊ GANHOU"
 	titleColor := colors.Green
 	gifPath := "assets/images/pirate-dance.gif"
-	gifScale := 0.6
+	gifScale := 0.7
 
 	// Se perdeu, muda título e gif
 	if s.result != nil && !s.result.Win {
