@@ -32,6 +32,15 @@ func (c *CampaignScene) refreshUI(size basic.Size) {
 
 	// 1. Calcular Pontuação e Estado das Fases
 	totalScore := 0
+
+	for _, oldCamp := range profile.Campaigns {
+		for _, res := range oldCamp.DifficultyStep {
+			if res.Win {
+				totalScore += res.Score
+			}
+		}
+	}
+
 	// Estados possíveis: "locked", "current", "done"
 	states := map[string]string{
 		"easy":   "current", // Padrão: começa no easy
@@ -135,6 +144,34 @@ func (c *CampaignScene) createStageCard(title, diff, state string, res *entity.M
 		bgColor = color.RGBA{40, 100, 40, 255} // Verde escuro para concluído
 		content = append(content, components.NewText(basic.Point{}, "CONCLUÍDO", colors.White, 18))
 		
+		// Botão Batalhar (Rejogar)
+		btn := components.NewButton(
+			basic.Point{},
+			basic.Size{W: 160, H: 40},
+			"Batalhar",
+			colors.Dark,
+			colors.White,
+			func(b *components.Button) {
+				// Inicializa campanha se for a primeira vez 
+				if c.ctx.Profile.CurrentCampaign == nil {
+					c.ctx.Profile.CurrentCampaign = &entity.Campaign{
+						ID:             fmt.Sprintf("camp_%d", time.Now().Unix()),
+						DifficultyStep: make(map[string]entity.MatchResult),
+						IsActive:       true,
+					}
+				}
+				// Configura dificuldade no contexto e vai para posicionamento
+				c.ctx.SetDifficulty(diff)
+				c.ctx.IsCampaign = true
+				
+				// Inicia a série de 3 partidas (Partida 1, Placar 0-0)
+				ps := NewPlacementSceneWithProfile(c.ctx.Profile)
+				ps.SetSeriesState(1, 0, 0)
+				c.stack.Push(ps)
+			},
+		)
+		content = append(content, btn)
+
 		// Botão Histórico
 		histBtn := components.NewButton(
 			basic.Point{},
@@ -168,7 +205,11 @@ func (c *CampaignScene) createStageCard(title, diff, state string, res *entity.M
 				// Configura dificuldade no contexto e vai para posicionamento
 				c.ctx.SetDifficulty(diff)
 				c.ctx.IsCampaign = true
-				c.stack.Push(NewPlacementSceneWithProfile(c.ctx.Profile))
+
+				// Inicia a série de 3 partidas (Partida 1, Placar 0-0)
+				ps := NewPlacementSceneWithProfile(c.ctx.Profile)
+				ps.SetSeriesState(1, 0, 0)
+				c.stack.Push(ps)
 			},
 		)
 		content = append(content, btn)
