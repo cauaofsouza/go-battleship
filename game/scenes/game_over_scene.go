@@ -24,6 +24,10 @@ func NewGameOverScene(winnerName string, result *entity.MatchResult) *GameOverSc
 	}
 }
 
+func (s *GameOverScene) GetMusic() string {
+	return "menus"
+}
+
 func (s *GameOverScene) OnEnter(prev Scene, size basic.Size) {
 	// Layout unificado para vitória e derrota, mudando apenas Título e GIF
 	s.setupGameOverLayout(size)
