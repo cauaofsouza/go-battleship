@@ -37,6 +37,10 @@ type BattleScene struct {
 	StackHandler
 }
 
+func (s *BattleScene) GetMusic() string {
+	return "battle"
+}
+
 // NewBattleScene cria a cena de batalha.
 // O estado do jogo (Match) deve ser passado via Contexto.
 func NewBattleScene() *BattleScene {
@@ -241,6 +245,8 @@ func (s *BattleScene) Update() error {
 // handleMatchEnd centraliza a lógica de fim de jogo e fluxo de campanha
 func (s *BattleScene) handleMatchEnd(res *entity.MatchResult) {
 	
+	finalRes := res
+
 	// Lógica de Série de Campanha (Melhor de 3 / 3 Partidas)
 	if s.ctx != nil && s.ctx.IsCampaign {
 		// Atualiza placar da série
@@ -263,10 +269,11 @@ func (s *BattleScene) handleMatchEnd(res *entity.MatchResult) {
 		seriesWon := s.seriesScorePlayer > s.seriesScoreEnemy
 		
 		// Cria um resultado sintético para salvar o progresso da fase
-		finalResult := *res
-		finalResult.Win = seriesWon // O que importa para desbloquear a próxima fase é vencer a série
+		syntheticRes := *res
+		syntheticRes.Win = seriesWon // O que importa para desbloquear a próxima fase é vencer a série
+		finalRes = &syntheticRes
 		
-		s.checkCampaignProgress(&finalResult)
+		s.checkCampaignProgress(finalRes)
 	}
 
 	// Configuração da tela de Game Over (apenas se acabou a série ou é jogo clássico)
@@ -299,7 +306,7 @@ func (s *BattleScene) handleMatchEnd(res *entity.MatchResult) {
 		}
 	}
 
-	SwitchTo(NewGameOverScene(winner, isWin, actionLabel, onAction))
+	SwitchTo(NewGameOverScene(winner, finalRes, actionLabel, onAction))
 }
 
 // checkCampaignProgress salva o progresso se estiver no modo campanha

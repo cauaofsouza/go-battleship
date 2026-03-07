@@ -63,6 +63,10 @@ type PlacementScene struct {
 	StackHandler
 }
 
+func (s *PlacementScene) GetMusic() string {
+	return "menus" //TODO Procurar musica para placement
+}
+
 // NewPlacementScene cria uma cena de posicionamento vazia.
 // A configuração completa é feita em OnEnter.
 func NewPlacementScene() *PlacementScene { return &PlacementScene{} }
@@ -149,8 +153,8 @@ func (s *PlacementScene) OnEnter(prev Scene, size basic.Size) {
 			matchID := fmt.Sprintf("match-%d", time.Now().UnixNano())
 
 			diff := "easy"
-			if s.ctx != nil && s.ctx.Difficulty != "" {
-				diff = s.ctx.Difficulty
+			if s.stack.ctx != nil && s.stack.ctx.Difficulty != "" {
+				diff = s.stack.ctx.Difficulty
 			}
 
 			match := entity.NewMatch(matchID, diff, gs.PlayerBoard, gs.AIBoard, s.ships, s.playerProfile)
@@ -161,9 +165,9 @@ func (s *PlacementScene) OnEnter(prev Scene, size basic.Size) {
 				return
 			}
 
-			if s.ctx != nil {
-				s.ctx.SetMatch(match)
-				s.ctx.SetBattleService(svc)
+			if s.stack.ctx != nil {
+				s.stack.ctx.SetMatch(match)
+				s.stack.ctx.SetBattleService(svc)
 			}
 
 			// Configura a cena de batalha com o estado da série
@@ -243,8 +247,8 @@ func (s *PlacementScene) OnEnter(prev Scene, size basic.Size) {
 	)
 
 	// Tenta recuperar profile do contexto se não tiver sido passado
-	if s.playerProfile == nil && s.ctx != nil && s.ctx.Profile != nil {
-		s.playerProfile = s.ctx.Profile
+	if s.playerProfile == nil && s.stack.ctx != nil && s.stack.ctx.Profile != nil {
+		s.playerProfile = s.stack.ctx.Profile
 	}
 
 	// Cria o rótulo com o nome do jogador
