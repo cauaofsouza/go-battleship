@@ -65,6 +65,18 @@ func (p *ProfileScene) init(size basic.Size) {
 				),
 			),
 
+			// Botão para acessar o histórico de partidas
+			components.NewButton(
+				basic.Point{},
+				basic.Size{W: 300, H: 55},
+				"Histórico de Partidas",
+				colors.Dark,
+				colors.White,
+				func(b *components.Button) {
+					p.stack.Push(&MatchsHistory{})
+				},
+			),
+
 			// Botão Voltar
 			components.NewButton(
 				basic.Point{},
