@@ -21,8 +21,8 @@ func (m *ModeSelectionScene) GetMusic() string {
 
 func (m *ModeSelectionScene) OnEnter(prev Scene, size basic.Size) {
 	// tenta obter profile do contexto (injetado pelo SceneStack)
-	if m.stack.ctx != nil && m.stack.ctx.Profile != nil {
-		m.profile = m.stack.ctx.Profile
+	if m.ctx != nil && m.ctx.Profile != nil {
+		m.profile = m.ctx.Profile
 	}
 
 	btnSize := basic.Size{W: 300, H: 60}
@@ -31,13 +31,13 @@ func (m *ModeSelectionScene) OnEnter(prev Scene, size basic.Size) {
 		m.stack.Push(&DifficultyScene{})
 	})
 
-	campaignBtn := components.NewButton(basic.Point{}, btnSize, "Campanha", colors.Dark, nil, func(b *components.Button) {
-		// garante que o profile esteja no contexto
-		if m.stack.ctx != nil && m.profile != nil {
-			m.stack.ctx.Profile = m.profile
-		}
-		m.stack.Push(NewPlacementSceneWithProfile(m.profile))
-	})
+    campaignBtn := components.NewButton(basic.Point{}, btnSize, "Campanha", colors.Dark, nil, func(b *components.Button) {
+        // garante que o profile esteja no contexto
+        if m.ctx != nil && m.profile != nil {
+            m.ctx.Profile = m.profile
+        }
+        m.stack.Push(&CampaignScene{})
+    })
 
 	backBtn := components.NewButton(basic.Point{}, basic.Size{W: 220, H: 50}, "Voltar", colors.Dark, nil, func(b *components.Button) {
 		m.stack.Pop()
@@ -89,9 +89,10 @@ func (d *DifficultyScene) OnEnter(prev Scene, size basic.Size) {
 	d.menu = NewDifficultyMenu(int(size.W), int(size.H), func(diff string) {
 
 		var prof *entity.Profile
-		if d.stack.ctx != nil {
-			d.stack.ctx.SetDifficulty(diff)
-			prof = d.stack.ctx.Profile
+		if d.ctx != nil {
+			d.ctx.SetDifficulty(diff)
+			d.ctx.IsCampaign = false
+			prof = d.ctx.Profile
 		}
 
 		d.stack.Push(NewPlacementSceneWithProfile(prof))

@@ -12,6 +12,7 @@ type GameContext struct {
 	BattleService BattleService
 	SoundService  *audio.SoundService
 	Difficulty string
+	IsCampaign bool
 }
 
 type ContextAware interface {
