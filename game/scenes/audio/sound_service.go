@@ -15,7 +15,7 @@ type SoundService struct {
 	current *Music            //musica atual para fade
 }
 
-const fadeDuration = 2000 * time.Millisecond
+const fadeDuration = 1200 * time.Millisecond
 
 // NewSoundService cria o servico de audio
 func NewSoundService() *SoundService {
