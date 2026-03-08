@@ -171,9 +171,15 @@ func (s *PlacementScene) OnEnter(prev Scene, size basic.Size) {
 			}
 
 			// Configura a cena de batalha com o estado da série
-			battleScene := NewBattleScene()
-			if s.ctx != nil && s.ctx.IsCampaign {
-				battleScene.SetSeriesState(s.matchIndex, s.seriesScorePlayer, s.seriesScoreEnemy)
+			var battleScene Scene
+			if s.stack.ctx != nil && s.stack.ctx.IsDynamicMode {
+				battleScene = NewDynamicBattleScene()
+			} else {
+				bs := NewBattleScene()
+				if s.ctx != nil && s.ctx.IsCampaign {
+					bs.SetSeriesState(s.matchIndex, s.seriesScorePlayer, s.seriesScoreEnemy)
+				}
+				battleScene = bs
 			}
 
 			SwitchTo(battleScene)
