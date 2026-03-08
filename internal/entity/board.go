@@ -110,7 +110,132 @@ func (b *Board) CheckPosition(row int, col int) bool {
 	return !(IsAttacked(b.Positions[row][col]))
 }
 
-func (b *Board) MoveShipSegment(row, col int, dir Direction) (*Ship, error) {
+func PrintBoard(b *Board) {
+	for i := 0; i < 10; i++ { // itera pelas linhas
+		for j := 0; j < 10; j++ { // itera pelas colunas
+			if IsAttacked(b.Positions[i][j]) { // se a posição foi atacada
+				if GetShipReference(b.Positions[i][j]) != nil {
+					print("x ") // posição atacada com navio
+					continue
+				}
+
+				print("o ") // posição atacada sem navio
+				continue
+			} else if GetShipReference(b.Positions[i][j]) != nil {
+				print("B ") // marca como bloqueada.
+				continue
+			}
+
+			//posição valida e não atacada.
+			print("- ")
+		}
+		print("\n") // nova linha apos cada linha do tabuleiro
+
+	}
+}
+
+
+func (b *Board) MoveShip(ship *Ship, newRow int, newCol int) error {
+    if ship == nil {
+        return fmt.Errorf("ship nil")
+    }
+
+    // encontra células atuais do navio
+    var cells [][2]int
+    for r := 0; r < BoardSize; r++ {
+        for c := 0; c < BoardSize; c++ {
+            if GetShipReference(b.Positions[r][c]) == ship {
+                cells = append(cells, [2]int{r, c})
+            }
+        }
+    }
+    if len(cells) == 0 {
+        return fmt.Errorf("barco não está no tabuleiro")
+    }
+
+    // determina coordenada top-left atual do navio (menor row e col)
+    minR, minC := cells[0][0], cells[0][1]
+    for _, p := range cells {
+        if p[0] < minR {
+            minR = p[0]
+        }
+        if p[1] < minC {
+            minC = p[1]
+        }
+    }
+
+    dRow := newRow - minR
+    dCol := newCol - minC
+
+    // permite somente movimento de 1 célula ortogonal
+    if !((abs(dRow) == 1 && dCol == 0) || (abs(dCol) == 1 && dRow == 0)) {
+        return fmt.Errorf("movimento inválido: deve mover exatamente 1 célula ortogonalmente")
+    }
+
+    // gera coords alvo baseado na orientação
+    var targets [][2]int
+    if ship.IsHorizontal() {
+        for i := 0; i < ship.Size; i++ {
+            r := newRow
+            c := newCol + i
+            targets = append(targets, [2]int{r, c})
+        }
+    } else {
+        for i := 0; i < ship.Size; i++ {
+            r := newRow + i
+            c := newCol
+            targets = append(targets, [2]int{r, c})
+        }
+    }
+
+    // valida targets dentro do tabuleiro e não colidindo com terceiros
+    for _, p := range targets {
+        r, c := p[0], p[1]
+        if r < 0 || r >= BoardSize || c < 0 || c >= BoardSize {
+            return fmt.Errorf("alvo fora dos limites")
+        }
+        // pode ser válido se a posição for livre (IsValidPosition) OU se já pertencer ao mesmo navio
+        ref := GetShipReference(b.Positions[r][c])
+        if ref != nil && ref != ship {
+            return fmt.Errorf("alvo colide com outro navio")
+        }
+        if !IsValidPosition(b.Positions[r][c]) && ref != ship {
+            // IsValidPosition verifica attacked/blocked/shipReference==nil
+            return fmt.Errorf("posição do alvo não disponível")
+        }
+    }
+
+    // aplicar movimentação: remover referências antigas e colocar nas novas
+    // coleta coords antigas para remoção
+    var olds [][2]int
+    for _, p := range cells {
+        olds = append(olds, p)
+    }
+
+    // remove ship das antigas
+    for _, p := range olds {
+        RemoveShip(&b.Positions[p[0]][p[1]])
+        // não altera attacked flag; desbloqueio aqui se desejado:
+        Unblock(&b.Positions[p[0]][p[1]])
+    }
+
+    // coloca ship nas novas posições
+    for _, p := range targets {
+        PlaceShip(&b.Positions[p[0]][p[1]], ship)
+    }
+
+    return nil
+}
+
+func abs(x int) int {
+    if x < 0 {
+        return -x
+    }
+    return x
+}
+
+
+func (b *Board) MoveShipSegment(row, col int, dir Direction) (*Ship, error) { // ignorar essa função
 	if !b.CheckPosition(row, col) {
 		return nil, fmt.Errorf("invalid position")
 	}

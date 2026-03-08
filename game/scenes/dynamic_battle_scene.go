@@ -25,7 +25,7 @@ const (
 // DynamicBattleScene representa a tela de batalha do modo dinâmico.
 type DynamicBattleScene struct {
 	battleSvc  service.BattleService
-	dynamicSvc service.DynamicBattleService
+	//dynamicSvc service.DynamicBattleService
 
 	backButtonContainer components.Widget
 	assets              *BattleAssets
@@ -79,10 +79,10 @@ func (s *DynamicBattleScene) OnEnter(prev Scene, size basic.Size) {
 	}
 
 	if s.ctx.DynamicBattleService != nil {
-		s.dynamicSvc = s.ctx.DynamicBattleService
+	//	s.dynamicSvc = s.ctx.DynamicBattleService
 	} else {
-		s.dynamicSvc = service.NewDynamicBattleService(match)
-		s.ctx.SetDynamicBattleService(s.dynamicSvc)
+	//	s.dynamicSvc = service.NewDynamicBattleService(match)
+	//	s.ctx.SetDynamicBattleService(s.dynamicSvc)
 	}
 
 	// Fundo compartilhado
@@ -276,40 +276,40 @@ func (s *DynamicBattleScene) handlePlayerMoveInput() {
 			dr := endRow - s.dragStartRow
 			dc := endCol - s.dragStartCol
 
-			var dir entity.Direction = -1
+			//var dir entity.Direction = -1
 			// Prioriza eixo com maior deslocamento
 			if abs(dr) >= abs(dc) {
 				if dr > 0 {
-					dir = entity.Down
+				//	dir = entity.Down
 				} else {
-					dir = entity.Up
+				//	dir = entity.Up
 				}
 			} else {
 				if dc > 0 {
-					dir = entity.Right
+				//	dir = entity.Right
 				} else {
-					dir = entity.Left
+				//	dir = entity.Left
 				}
 			}
 
-			if dir != -1 {
+			//if dir != -1 {
 				// Tenta mover
-				err := s.dynamicSvc.HandlePlayerMove(s.selRow, s.selCol, dir)
-				if err == nil {
-					s.selectedShip = nil
-					s.phase = PhasePlayerAttack
-				} else {
+				//err := s.dynamicSvc.HandlePlayerMove(s.selRow, s.selCol, dir)
+				//if err == nil {
+				//	s.selectedShip = nil
+				//	s.phase = PhasePlayerAttack
+				//} else {
 					// Se falhar (ex: colisão), tenta com findShipPosition (backup)
-					r, c := s.findShipPosition(s.selectedShip)
-					if r != -1 {
-						err = s.dynamicSvc.HandlePlayerMove(r, c, dir)
-						if err == nil {
-							s.selectedShip = nil
-							s.phase = PhasePlayerAttack
-						}
-					}
-				}
-			}
+				//	r, c := s.findShipPosition(s.selectedShip)
+				//	if r != -1 {
+				//		err = s.dynamicSvc.HandlePlayerMove(r, c, dir)
+				//		if err == nil {
+				//			s.selectedShip = nil
+				//			s.phase = PhasePlayerAttack
+				//		}
+				//	}
+			//	}
+			//}
 		}
 	}
 
@@ -331,30 +331,30 @@ func (s *DynamicBattleScene) handlePlayerMoveInput() {
 
 		if dir != -1 {
 			// Tenta mover usando a posição clicada/selecionada
-			err := s.dynamicSvc.HandlePlayerMove(s.selRow, s.selCol, dir)
+			//err := s.dynamicSvc.HandlePlayerMove(s.selRow, s.selCol, dir)
 
 			// Se falhar (ex: clicou em parte danificada), tenta achar uma parte intacta automaticamente
-			if err != nil {
-				r, c := s.findShipPosition(s.selectedShip)
-				if r != -1 {
-					err = s.dynamicSvc.HandlePlayerMove(r, c, dir)
+			//if err != nil {
+			//	r, c := s.findShipPosition(s.selectedShip)
+			//	if r != -1 {
+					//err = s.dynamicSvc.HandlePlayerMove(r, c, dir)
 				}
 			}
 
-			if err == nil {
+		//	if err == nil {
 				// Sucesso, passa para ataque
-				s.selectedShip = nil
-				s.phase = PhasePlayerAttack
-			}
+		//		s.selectedShip = nil
+		//		s.phase = PhasePlayerAttack
+		//	}
 		}
-	}
+	//}
 
 	// Botão Pular Movimento (Espaço)
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		s.selectedShip = nil
-		s.phase = PhasePlayerAttack
-	}
-}
+	//if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+	//	s.selectedShip = nil
+	//	s.phase = PhasePlayerAttack
+	//}
+//}
 
 func (s *DynamicBattleScene) findShipPosition(ship *entity.Ship) (int, int) {
 	board := s.ctx.Match.PlayerEntityBoard
@@ -398,7 +398,7 @@ func (s *DynamicBattleScene) handlePlayerAttackInput() {
 
 func (s *DynamicBattleScene) handleEnemyTurn() {
 	// 1. Move
-	s.dynamicSvc.HandleEnemyMove()
+	//s.dynamicSvc.HandleEnemyMove()
 
 	// 2. Attack
 	if res, err := s.battleSvc.HandleEnemyTurn(); err == nil && res != nil {
