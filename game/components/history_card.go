@@ -56,30 +56,61 @@ func buildCardContent(size basic.Size, result entity.MatchResult) Widget {
 ======================= */
 
 func buildHeader(size basic.Size, result entity.MatchResult) Widget {
-	rowSize := basic.Size{
-		W: size.W * 0.9,
-		H: size.H * 0.2,
-	}
+    rowSize := basic.Size{
+        W: size.W * 0.9,
+        H: size.H * 0.2,
+    }
 
-	title, resultColor := resolveResultLabel(result)
-	scoreColor := resolveScoreColor(result.Score)
+    title, resultColor := resolveResultLabel(result)
+    scoreColor := resolveScoreColor(result.Score)
+    
+    diffText := resolveDifficultyLabel(result.Difficulty)
 
-	return NewContainer(
-		basic.Point{}, rowSize, 0,
-		colors.Transparent, basic.Center, basic.Center,
-		NewRow(
-			basic.Point{}, 10, rowSize,
-			basic.Start, basic.Center,
-			[]Widget{
-				mustImage("assets/icons/skull.png", 30, 30),
-				NewText(basic.Point{}, title, resultColor, 24),
-				sideSpacer(50), // Espaçamento flexível reduzido
-				mustImage("assets/icons/star.png", 24, 24),
-				NewText(basic.Point{}, "SCORE: ", colors.White, 24),
-				NewText(basic.Point{}, fmt.Sprintf("%03d", result.Score), scoreColor, 24),
-			},
-		),
-	)
+    partWidth := rowSize.W / 3
+    partSize := basic.Size{W: partWidth, H: rowSize.H}
+
+    leftBlock := NewContainer(
+        basic.Point{}, partSize, 0,
+        colors.Transparent, basic.Start, basic.Center,
+        NewRow(
+            basic.Point{}, 10, partSize,
+            basic.Start, basic.Center,
+            []Widget{
+                mustImage("assets/icons/skull.png", 30, 30),
+                NewText(basic.Point{}, title, resultColor, 24),
+            },
+        ),
+    )
+
+    centerBlock := NewContainer(
+        basic.Point{}, partSize, 0,
+        colors.Transparent, basic.Center, basic.Center,
+        NewText(basic.Point{}, fmt.Sprintf("[%s]", diffText), colors.White, 24),
+    )
+
+    rightBlock := NewContainer(
+        basic.Point{}, partSize, 0,
+        colors.Transparent, basic.End, basic.Center,
+        NewRow(
+            basic.Point{}, 10, partSize,
+            basic.End, basic.Center,
+            []Widget{
+                mustImage("assets/icons/star.png", 24, 24),
+                NewText(basic.Point{}, "SCORE: ", colors.White, 24),
+                NewText(basic.Point{}, fmt.Sprintf("%03d", result.Score), scoreColor, 24),
+            },
+        ),
+    )
+
+    return NewContainer(
+        basic.Point{}, rowSize, 0,
+        colors.Transparent, basic.Center, basic.Center,
+        NewRow(
+            basic.Point{}, 0, rowSize,
+            basic.Start, basic.Center,
+            []Widget{leftBlock, centerBlock, rightBlock},
+        ),
+    )
 }
 
 /* =======================
@@ -217,6 +248,19 @@ func safeHitPercent(hits, shots int) float64 {
 		return 0
 	}
 	return (float64(hits) / float64(shots)) * 100
+}
+
+func resolveDifficultyLabel(diff string) string {
+    switch diff {
+    case "easy":
+        return "RECRUTA"
+    case "medium":
+        return "IMEDIATO"
+    case "hard":
+        return "ALMIRANTE"
+    default:
+        return "RECRUTA"
+    }
 }
 
 /* =======================
