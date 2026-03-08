@@ -106,6 +106,8 @@ func (s *battleService) HandlePlayerClick(row, col int) (*entity.MatchResult, er
 	if ev.GameOver {
 		// Gera o resultado final da partida.
 		res := s.matchSvc.ResultForPlayer(s.match)
+		// Salva a dificuldade da partida
+		res.Difficulty = s.match.Difficulty
 		// Registra o resultado no perfil do jogador (se existir).
 		if s.profile != nil {
 			_, _ = AddMatchToProfile(s.profile, res)
@@ -140,6 +142,7 @@ func (s *battleService) HandleEnemyTurn() (*entity.MatchResult, error) {
 	// Se a IA venceu, processa o fim de jogo.
 	if ev.GameOver {
 		res := s.matchSvc.ResultForPlayer(s.match)
+		res.Difficulty = s.match.Difficulty
 		if s.profile != nil {
 			_, _ = AddMatchToProfile(s.profile, res)
 		}

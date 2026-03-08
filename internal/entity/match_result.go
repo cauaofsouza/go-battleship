@@ -5,6 +5,7 @@ import "fmt"
 // MatchResult struct que encapsula resultado da partida para histórico e estatisticas do jogo
 type MatchResult struct {
 	Win               bool  `json:"win"`
+	Difficulty        string`json:"difficulty"`
 	PlayerShots       int   `json:"player_shots"`
 	Hits              int   `json:"hits"`
 	HigherHitSequence int   `json:"higher_hit_sequence"`
