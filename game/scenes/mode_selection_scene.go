@@ -28,16 +28,37 @@ func (m *ModeSelectionScene) OnEnter(prev Scene, size basic.Size) {
 	btnSize := basic.Size{W: 300, H: 60}
 	// PARTIDA CLÁSSICA -> abre seleção de dificuldade
 	classicBtn := components.NewButton(basic.Point{}, btnSize, "Partida Clássica", colors.Dark, nil, func(b *components.Button) {
+		if m.ctx != nil {
+			m.ctx.IsDynamicMode = false
+			m.ctx.IsCampaign = false
+		}
 		m.stack.Push(&DifficultyScene{})
 	})
 
-    campaignBtn := components.NewButton(basic.Point{}, btnSize, "Campanha", colors.Dark, nil, func(b *components.Button) {
-        // garante que o profile esteja no contexto
-        if m.ctx != nil && m.profile != nil {
-            m.ctx.Profile = m.profile
-        }
-        m.stack.Push(&CampaignScene{})
-    })
+	campaignBtn := components.NewButton(basic.Point{}, btnSize, "Campanha", colors.Dark, nil, func(b *components.Button) {
+		// garante que o profile esteja no contexto
+		if m.ctx != nil {
+			m.ctx.IsDynamicMode = false
+			m.ctx.IsCampaign = true
+			if m.profile != nil {
+				m.ctx.Profile = m.profile
+			}
+		}
+		m.stack.Push(&CampaignScene{})
+	})
+
+	dynamicBtn := components.NewButton(basic.Point{}, btnSize, "Dinâmico", colors.Dark, nil, func(b *components.Button) {
+		// Modo Dinâmico: Dificuldade Hard, IsDynamicMode = true
+		if m.ctx != nil {
+			m.ctx.SetDifficulty("hard")
+			m.ctx.IsCampaign = false
+			m.ctx.IsDynamicMode = true
+			if m.profile != nil {
+				m.ctx.Profile = m.profile
+			}
+		}
+		m.stack.Push(NewPlacementSceneWithProfile(m.profile))
+	})
 
 	backBtn := components.NewButton(basic.Point{}, basic.Size{W: 220, H: 50}, "Voltar", colors.Dark, nil, func(b *components.Button) {
 		m.stack.Pop()
@@ -54,6 +75,7 @@ func (m *ModeSelectionScene) OnEnter(prev Scene, size basic.Size) {
 			components.NewText(basic.Point{}, "SELECIONE O MODO DE JOGO", colors.White, 28),
 			classicBtn,
 			campaignBtn,
+			dynamicBtn,
 			backBtn,
 		},
 	)
