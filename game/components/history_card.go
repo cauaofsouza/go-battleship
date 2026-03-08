@@ -56,6 +56,7 @@ func buildCardContent(size basic.Size, result entity.MatchResult) Widget {
 ======================= */
 
 func buildHeader(size basic.Size, result entity.MatchResult) Widget {
+
     rowSize := basic.Size{
         W: size.W * 0.9,
         H: size.H * 0.2,
@@ -63,8 +64,8 @@ func buildHeader(size basic.Size, result entity.MatchResult) Widget {
 
     title, resultColor := resolveResultLabel(result)
     scoreColor := resolveScoreColor(result.Score)
-    
     diffText := resolveDifficultyLabel(result.Difficulty)
+    modeLabel, modeColor := resolveModeLabel(result)
 
     partWidth := rowSize.W / 3
     partSize := basic.Size{W: partWidth, H: rowSize.H}
@@ -78,6 +79,9 @@ func buildHeader(size basic.Size, result entity.MatchResult) Widget {
             []Widget{
                 mustImage("assets/icons/skull.png", 30, 30),
                 NewText(basic.Point{}, title, resultColor, 24),
+                NewText(basic.Point{}, "|", colors.White, 18),
+                mustImage("assets/icons/anchor.png", 20, 20),
+                NewText(basic.Point{}, modeLabel, modeColor, 18),
             },
         ),
     )
@@ -202,6 +206,15 @@ func resolveResultLabel(result entity.MatchResult) (string, color.Color) {
 		return "VITORIA", colors.GoldMedal
 	}
 	return "DERROTA", colors.Red
+}
+
+// resolveModeLabel retorna o label e a cor do modo de jogo
+func resolveModeLabel(result entity.MatchResult) (string, color.Color) {
+
+	if result.Mode == "Campanha" {
+		return "CAMPANHA", colors.GoldMedal
+	}
+	return "CLÁSSICA", colors.White
 }
 
 func resolveScoreColor(score int) color.Color {
