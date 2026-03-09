@@ -241,11 +241,11 @@ func initWidgets(
 			fmt.Sprintf("%d", stats.Matches), size),
 		createStatCard("Vitórias",
 			fmt.Sprintf("%d", stats.Wins), size),
-		createStatCard("Winrate",
+		createStatCard("Taxa de Vitória",
 			fmt.Sprintf("%.2f %%", stats.WinRate()), size),
-		createStatCard("Hit rate",
+		createStatCard("Taxa de Acerto",
 			fmt.Sprintf("%.2f %%", stats.Accuracy()), size),
-		createStatCard("Maior Score",
+		createStatCard("Maior Pontuação",
 			fmt.Sprintf("%d", stats.HighScore), size),
 	}
 }
