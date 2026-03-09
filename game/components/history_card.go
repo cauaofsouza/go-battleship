@@ -57,64 +57,64 @@ func buildCardContent(size basic.Size, result entity.MatchResult) Widget {
 
 func buildHeader(size basic.Size, result entity.MatchResult) Widget {
 
-    rowSize := basic.Size{
-        W: size.W * 0.9,
-        H: size.H * 0.2,
-    }
+	rowSize := basic.Size{
+		W: size.W * 0.9,
+		H: size.H * 0.2,
+	}
 
-    title, resultColor := resolveResultLabel(result)
-    scoreColor := resolveScoreColor(result.Score)
-    diffText := resolveDifficultyLabel(result.Difficulty)
-    modeLabel, modeColor := resolveModeLabel(result)
+	title, resultColor := resolveResultLabel(result)
+	scoreColor := resolveScoreColor(result.Score)
+	diffText := resolveDifficultyLabel(result.Difficulty)
+	modeLabel, modeColor := resolveModeLabel(result)
 
-    partWidth := rowSize.W / 3
-    partSize := basic.Size{W: partWidth, H: rowSize.H}
+	partWidth := rowSize.W / 3
+	partSize := basic.Size{W: partWidth, H: rowSize.H}
 
-    leftBlock := NewContainer(
-        basic.Point{}, partSize, 0,
-        colors.Transparent, basic.Start, basic.Center,
-        NewRow(
-            basic.Point{}, 10, partSize,
-            basic.Start, basic.Center,
-            []Widget{
-                mustImage("assets/icons/skull.png", 30, 30),
-                NewText(basic.Point{}, title, resultColor, 24),
-                NewText(basic.Point{}, "|", colors.White, 18),
-                mustImage("assets/icons/anchor.png", 20, 20),
-                NewText(basic.Point{}, modeLabel, modeColor, 18),
-            },
-        ),
-    )
+	leftBlock := NewContainer(
+		basic.Point{}, partSize, 0,
+		colors.Transparent, basic.Start, basic.Center,
+		NewRow(
+			basic.Point{}, 10, partSize,
+			basic.Start, basic.Center,
+			[]Widget{
+				mustImage("assets/icons/skull.png", 30, 30),
+				NewText(basic.Point{}, title, resultColor, 24),
+				NewText(basic.Point{}, "|", colors.White, 18),
+				mustImage("assets/icons/anchor.png", 20, 20),
+				NewText(basic.Point{}, modeLabel, modeColor, 18),
+			},
+		),
+	)
 
-    centerBlock := NewContainer(
-        basic.Point{}, partSize, 0,
-        colors.Transparent, basic.Center, basic.Center,
-        NewText(basic.Point{}, fmt.Sprintf("[%s]", diffText), colors.White, 24),
-    )
+	centerBlock := NewContainer(
+		basic.Point{}, partSize, 0,
+		colors.Transparent, basic.Center, basic.Center,
+		NewText(basic.Point{}, fmt.Sprintf("[%s]", diffText), colors.White, 24),
+	)
 
-    rightBlock := NewContainer(
-        basic.Point{}, partSize, 0,
-        colors.Transparent, basic.End, basic.Center,
-        NewRow(
-            basic.Point{}, 10, partSize,
-            basic.End, basic.Center,
-            []Widget{
-                mustImage("assets/icons/star.png", 24, 24),
-                NewText(basic.Point{}, "SCORE: ", colors.White, 24),
-                NewText(basic.Point{}, fmt.Sprintf("%03d", result.Score), scoreColor, 24),
-            },
-        ),
-    )
+	rightBlock := NewContainer(
+		basic.Point{}, partSize, 0,
+		colors.Transparent, basic.End, basic.Center,
+		NewRow(
+			basic.Point{}, 10, partSize,
+			basic.End, basic.Center,
+			[]Widget{
+				mustImage("assets/icons/star.png", 24, 24),
+				NewText(basic.Point{}, "SCORE: ", colors.White, 24),
+				NewText(basic.Point{}, fmt.Sprintf("%03d", result.Score), scoreColor, 24),
+			},
+		),
+	)
 
-    return NewContainer(
-        basic.Point{}, rowSize, 0,
-        colors.Transparent, basic.Center, basic.Center,
-        NewRow(
-            basic.Point{}, 0, rowSize,
-            basic.Start, basic.Center,
-            []Widget{leftBlock, centerBlock, rightBlock},
-        ),
-    )
+	return NewContainer(
+		basic.Point{}, rowSize, 0,
+		colors.Transparent, basic.Center, basic.Center,
+		NewRow(
+			basic.Point{}, 0, rowSize,
+			basic.Start, basic.Center,
+			[]Widget{leftBlock, centerBlock, rightBlock},
+		),
+	)
 }
 
 /* =======================
@@ -214,6 +214,9 @@ func resolveModeLabel(result entity.MatchResult) (string, color.Color) {
 	if result.Mode == "Campanha" {
 		return "CAMPANHA", colors.GoldMedal
 	}
+	if result.Mode == "Dinamica" {
+		return "DINÂMICA", colors.SilverMedal
+	}
 	return "CLÁSSICA", colors.White
 }
 
@@ -264,16 +267,16 @@ func safeHitPercent(hits, shots int) float64 {
 }
 
 func resolveDifficultyLabel(diff string) string {
-    switch diff {
-    case "easy":
-        return "RECRUTA"
-    case "medium":
-        return "IMEDIATO"
-    case "hard":
-        return "ALMIRANTE"
-    default:
-        return "RECRUTA"
-    }
+	switch diff {
+	case "easy":
+		return "RECRUTA"
+	case "medium":
+		return "IMEDIATO"
+	case "hard":
+		return "ALMIRANTE"
+	default:
+		return "RECRUTA"
+	}
 }
 
 /* =======================

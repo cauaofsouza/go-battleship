@@ -74,3 +74,12 @@ func (i *Image) Draw(screen *ebiten.Image) {
 
 	screen.DrawImage(i.image, opts)
 }
+
+func (i *Image) SetTexture(path string) interface{} {
+	newImg, _, err := ebitenutil.NewImageFromFile(path)
+	if err != nil {
+		return err
+	}
+	i.image = newImg
+	return nil
+}

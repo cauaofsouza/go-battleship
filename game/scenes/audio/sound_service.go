@@ -13,6 +13,7 @@ type SoundService struct {
 	musics  map[string]*Music //mapa nome->music
 	lock    sync.Mutex        //thread safe
 	current *Music            //musica atual para fade
+	muted   bool
 }
 
 const fadeDuration = 1200 * time.Millisecond
@@ -33,7 +34,7 @@ func (ss *SoundService) LoadMusic(name, path string) {
 }
 
 // Play toca musica //loop=true repete //fade entre musicas
-func (ss *SoundService) Play(name string) {
+func (ss *SoundService) Play(name string, vol float64) {
 	if ss.current != nil && ss.current != ss.musics[name] {
 		// fade out da música atual
 		ss.current.FadeTo(0, fadeDuration)
@@ -44,7 +45,7 @@ func (ss *SoundService) Play(name string) {
 		// fade in da nova música
 		newMusic.volume = 0
 		newMusic.Play()
-		newMusic.FadeTo(1, fadeDuration)
+		newMusic.FadeTo(vol, fadeDuration)
 		ss.current = newMusic
 	}
 }
@@ -72,4 +73,25 @@ func (ss *SoundService) CloseAll() error {
 		}
 	}
 	return nil
+}
+
+func (ss *SoundService) IsMuted() bool {
+	ss.lock.Lock()
+	defer ss.lock.Unlock()
+	return ss.muted
+}
+
+func (ss *SoundService) ToggleMute() {
+	ss.lock.Lock()
+	defer ss.lock.Unlock()
+
+	ss.muted = !ss.muted
+
+	for _, m := range ss.musics {
+		if ss.muted {
+			m.SetVolume(0)
+		} else {
+			m.SetVolume(m.originalVolume)
+		}
+	}
 }

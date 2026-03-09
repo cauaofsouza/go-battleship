@@ -243,7 +243,7 @@ func initWidgets(
 			fmt.Sprintf("%d", stats.Wins), size),
 		createStatCard("Winrate",
 			fmt.Sprintf("%.2f %%", stats.WinRate()), size),
-		createStatCard("Hitrate",
+		createStatCard("Hit rate",
 			fmt.Sprintf("%.2f %%", stats.Accuracy()), size),
 		createStatCard("Maior Score",
 			fmt.Sprintf("%d", stats.HighScore), size),

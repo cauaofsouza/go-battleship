@@ -49,16 +49,23 @@ func (p *ProfileScene) init(size basic.Size) {
 	// Coluna principal que centraliza verticalmente
 	p.root = components.NewColumn(
 		basic.Point{},
-		40,
+		20,
 		size,
 		basic.Start,
 		basic.Center,
 		[]components.Widget{
+			components.NewContainer(
+				basic.Point{},
+				basic.Size{W: 1, H: 20},
+				0, nil,
+				basic.Center, basic.Center,
+				nil,
+			),
 			// Title
 			components.NewText(basic.Point{},
-				"PERFIL DE JOGADOR",
+				"Perfil do Jogador",
 				colors.White,
-				42),
+				35),
 
 			// Container com Row para estatisticas
 			components.NewStatCard(
@@ -86,6 +93,13 @@ func (p *ProfileScene) init(size basic.Size) {
 					basic.Center, basic.Center,
 					*medals,
 				),
+			),
+			components.NewContainer(
+				basic.Point{},
+				basic.Size{W: 1, H: 30},
+				0, nil,
+				basic.Center, basic.Center,
+				nil,
 			),
 
 			// Botão para acessar o histórico de partidas

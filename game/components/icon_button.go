@@ -1,6 +1,8 @@
 package components
 
 import (
+	"fmt"
+
 	"github.com/allanjose001/go-battleship/game/components/basic"
 	inputhelper "github.com/allanjose001/go-battleship/game/util"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -70,4 +72,14 @@ func NewDeleteIconButton(point basic.Point, size basic.Size, cb func()) *IconBut
 
 func NewPlayIconButton(point basic.Point, size basic.Size, cb func()) *IconButton {
 	return NewIconButton("assets/images/botao-play.png", point, size, cb)
+}
+
+func (b *IconButton) SetIcon(path string) {
+	if b.img == nil {
+		return
+	}
+	err := b.img.SetTexture(path)
+	if err != nil {
+		fmt.Println("Erro ao trocar ícone:", err)
+	}
 }
