@@ -34,11 +34,11 @@ func NewMedal(icon, title, desc string, size basic.Size) *MedalCard {
 	}
 
 	iconImage, err := NewImage(icon, basic.Point{}, iconSize)
-	titleTxt := NewText(basic.Point{}, title, colors.GoldMedal, 16)
+	titleTxt := NewTextWrap(basic.Point{}, title, colors.Black, 16, size.W*0.6)
 
 	// Largura máxima da descrição = mesma do container de texto original (size.W * 0.6)
 	// O texto vai quebrar linha e centralizar automaticamente dentro dessa área
-	descTxt := NewTextWrap(basic.Point{}, desc, colors.GoldMedal, 12, size.W*0.6)
+	descTxt := NewTextWrap(basic.Point{}, desc, colors.BronzeMedal, 12, size.W*0.6)
 
 	var iconHandler Widget
 
@@ -60,9 +60,13 @@ func NewMedal(icon, title, desc string, size basic.Size) *MedalCard {
 			NewRow(
 				basic.Point{}, 10,
 				size,
-				basic.Center,
+				basic.Start,
 				basic.Center,
 				[]Widget{
+
+					// COntainer fantasma para criar espaçamento entre a imagem da medalha e o card
+					NewContainer(basic.Point{}, basic.Size{W: 20, H: 1}, 0, colors.Transparent, basic.Center, basic.Center, nil),
+
 					// Container do ícone — igual ao original
 					NewContainer(
 						basic.Point{},
@@ -85,7 +89,7 @@ func NewMedal(icon, title, desc string, size basic.Size) *MedalCard {
 						NewColumn(
 							basic.Point{}, 12,
 							basic.Size{
-								W: size.W * 0.6,
+								W: size.W * 0.7,
 								H: size.H,
 							},
 							basic.Center,

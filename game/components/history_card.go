@@ -164,7 +164,7 @@ func buildLeftStats(size basic.Size, result entity.MatchResult) Widget {
 						safeHitPercent(result.Hits, result.PlayerShots)),
 					iconRowSize,
 					resultColor),
-				buildIconRow("assets/icons/eye.png", "SEQUENCIA: ",
+				buildIconRow("assets/icons/eye.png", "SEQUÊNCIA: ",
 					fmt.Sprintf("%02d", result.HigherHitSequence),
 					iconRowSize,
 					resultColor),
@@ -203,7 +203,7 @@ func buildRightStats(size basic.Size, result entity.MatchResult) Widget {
 
 func resolveResultLabel(result entity.MatchResult) (string, color.Color) {
 	if result.Win {
-		return "VITORIA", colors.GoldMedal
+		return "VITÓRIA", colors.GoldMedal
 	}
 	return "DERROTA", colors.Red
 }
