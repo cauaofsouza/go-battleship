@@ -21,16 +21,22 @@ var windowSize = basic.Size{W: 1280, H: 800}
 
 type Game struct {
 	// stack que gerencia as rotas das telas do jogo - é como um singleton (única para tod0 o jogo)
-	stack *scenes.SceneStack
+	stack  *scenes.SceneStack
+	cursor components.Widget
 }
 
 func NewGame() *Game {
 	//inicializa fonte ao inicializar game
 	components.InitFonts()
-	g := &Game{
-		stack: scenes.NewSceneStack(windowSize, &scenes.HomeScreen{}, state.NewGameContext()), //incializa com primeira scene
-	}
+	ebiten.SetCursorMode(ebiten.CursorModeHidden)
+	cursor, err := components.NewCursor()
 
+	if err != nil {
+		ebiten.SetCursorMode(ebiten.CursorModeVisible)
+	}
+	g := &Game{
+		stack: scenes.NewSceneStack(windowSize, &scenes.HomeScreen{}, state.NewGameContext()), cursor: cursor, //incializa com primeira scene
+	}
 	scenes.SwitchTo = func(next scenes.Scene) {
 		g.stack.Replace(next)
 	}
@@ -48,6 +54,8 @@ func (g *Game) Update() error {
 	if err != nil {
 		log.Fatal("Erro em stack.Update() em game.go: ", err)
 	}
+	g.cursor.Update(basic.Point{})
+
 	return nil
 }
 
@@ -57,6 +65,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if !g.stack.IsEmpty() {
 		g.stack.Draw(screen)
 	}
+	g.cursor.Draw(screen)
 }
 
 func (g *Game) Layout(_, _ int) (int, int) {
