@@ -76,40 +76,64 @@ func (cs *CampaignService) StartCampaignMatch(
 }
 
 // HandleCampaignResult processa o fim da partida
-func (cs *CampaignService) HandleCampaignResult(username string, diff string, m *entity.Match, playerWins, enemyWins int) error {
-	// Só salva o progresso se a série (melhor de 3) terminou
-	if playerWins < 2 && enemyWins < 2 {
-		return nil
-	}
-
+func (cs *CampaignService) HandleCampaignResult(username string, diff string, currentMatchResult *entity.MatchResult, playerWins, enemyWins int) (*entity.MatchResult, bool, error) {
 	profile, err := FindProfile(username)
 	if err != nil {
-		return err
+		return nil, false, err
 	}
 
 	if profile.CurrentCampaign == nil {
-		return fmt.Errorf("nenhuma campanha ativa para %s", username)
+		return nil, false, fmt.Errorf("nenhuma campanha ativa para %s", username)
 	}
 
-	// 1. Extrai o resultado final da partida
-	result := m.Result()
-	// Sobrescreve o resultado de vitória baseado na série, não apenas na última partida
-	result.Win = playerWins >= 2
+	// 1. Acumulação de Estatísticas
+	isFirstMatch := (playerWins + enemyWins) == 1
+	var accumulated entity.MatchResult
 
-	// 2. Atualiza o progresso da campanha em memória
-	profile.CurrentCampaign.DifficultyStep[diff] = result
-
-	// 3. Lógica de progressão: Se venceu o Hard, encerra a campanha ativa
-	_, finished := cs.GetNextDifficulty(profile.CurrentCampaign)
-	if finished && result.Win {
-		profile.CurrentCampaign.IsActive = false
-		profile.Campaigns = append(profile.Campaigns, *profile.CurrentCampaign)
-		profile.CurrentCampaign = nil
+	if isFirstMatch {
+		accumulated = *currentMatchResult
+		accumulated.Win = false // Série ainda não vencida
+	} else {
+		if prev, ok := profile.CurrentCampaign.DifficultyStep[diff]; ok {
+			accumulated = prev
+			accumulated.PlayerShots += currentMatchResult.PlayerShots
+			accumulated.Hits += currentMatchResult.Hits
+			accumulated.LostShips += currentMatchResult.LostShips
+			accumulated.KilledShips += currentMatchResult.KilledShips
+			accumulated.Duration += currentMatchResult.Duration
+			accumulated.Score += currentMatchResult.Score
+			if currentMatchResult.HigherHitSequence > accumulated.HigherHitSequence {
+				accumulated.HigherHitSequence = currentMatchResult.HigherHitSequence
+			}
+		} else {
+			accumulated = *currentMatchResult
+		}
 	}
 
-	// 4. Persistência com profile_scene
-	_, err = AddMatchToProfile(profile, result)
-	return err
+	// Salva o estado intermediário (acumulado) no perfil
+	profile.CurrentCampaign.DifficultyStep[diff] = accumulated
+	if err := UpdateProfile(*profile); err != nil {
+		return nil, false, err
+	}
+
+	// 2. Verifica se a série terminou
+	isSeriesOver := playerWins >= 2 || enemyWins >= 2
+	if !isSeriesOver {
+		return nil, false, nil
+	}
+
+	// 3. Finalização da Série
+	finalRes := accumulated
+	finalRes.Win = playerWins >= 2
+	finalRes.Mode = "Campanha"
+	finalRes.Difficulty = diff
+
+	// Atualiza o passo final com o status de vitória correto
+	profile.CurrentCampaign.DifficultyStep[diff] = finalRes
+
+	// 5. Persistência no histórico
+	_, err = AddMatchToProfile(profile, finalRes)
+	return &finalRes, true, err
 }
 
 // GetNextDifficulty retorna qual o próximo passo da campanha.

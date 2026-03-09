@@ -7,6 +7,7 @@ import (
 	"github.com/allanjose001/go-battleship/game/components/basic"
 	"github.com/allanjose001/go-battleship/game/components/basic/colors"
 	"github.com/allanjose001/go-battleship/internal/entity"
+	"github.com/allanjose001/go-battleship/internal/service"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -36,6 +37,13 @@ func (s *CampaignHistoryScene) OnEnter(prev Scene, size basic.Size) {
 }
 
 func (s *CampaignHistoryScene) init(size basic.Size) {
+	// Atualiza o perfil com os dados mais recentes do serviço
+	if s.ctx != nil && s.ctx.Profile != nil {
+		if p, err := service.FindProfile(s.ctx.Profile.Username); err == nil {
+			s.ctx.Profile = p
+		}
+	}
+
 	profile := s.ctx.Profile
 	var results []entity.MatchResult
 

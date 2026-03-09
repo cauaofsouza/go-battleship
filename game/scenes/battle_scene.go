@@ -1,6 +1,7 @@
 package scenes
 
 import (
+	"fmt"
 	"image/color"
 
 	"github.com/allanjose001/go-battleship/game/components"
@@ -259,10 +260,20 @@ func (s *BattleScene) handleMatchEnd(res *entity.MatchResult) {
 			s.seriesScoreEnemy++
 		}
 
-		// 2. Verifica se a série terminou (alguém fez 2 pontos)
-		seriesOver := s.seriesScorePlayer >= 2 || s.seriesScoreEnemy >= 2
+		// Chama o serviço para processar o resultado e acumular estatísticas
+		cs := service.NewCampaignService(nil)
+		aggRes, isOver, err := cs.HandleCampaignResult(
+			s.ctx.Profile.Username,
+			s.ctx.Difficulty,
+			res,
+			s.seriesScorePlayer,
+			s.seriesScoreEnemy,
+		)
+		if err != nil {
+			fmt.Println("Erro campanha:", err)
+		}
 
-		if !seriesOver {
+		if !isOver {
 			// A série continua, vai para a próxima partida.
 			nextScene := NewPlacementSceneWithProfile(s.ctx.Profile)
 			nextScene.SetSeriesState(s.matchIndex+1, s.seriesScorePlayer, s.seriesScoreEnemy)
@@ -270,12 +281,10 @@ func (s *BattleScene) handleMatchEnd(res *entity.MatchResult) {
 			return // Importante: retorna para não executar o código da GameOverScene abaixo.
 		}
 
-		// A série acabou. Prepara o resultado final para a tela de Game Over.
-		seriesWon := s.seriesScorePlayer >= 2
-		syntheticRes := *res      // Cria uma cópia do resultado da última partida
-		syntheticRes.Win = seriesWon // Sobrescreve a vitória com o resultado da série
-		finalRes = &syntheticRes     // Usa este resultado sintético para o resto da função
-		s.checkCampaignProgress(finalRes) // Salva o progresso da campanha
+		// A série acabou. Usa o resultado acumulado retornado pelo serviço.
+		if aggRes != nil {
+			finalRes = aggRes
+		}
 	}
 
 	winner := s.battleSvc.WinnerName()
@@ -303,44 +312,6 @@ func (s *BattleScene) handleMatchEnd(res *entity.MatchResult) {
 	}
 
 	SwitchTo(NewGameOverScene(winner, finalRes, actionLabel, onAction))
-}
-
-// getNextDifficulty retorna qual o próximo passo da campanha, replicando a lógica do CampaignService.
-func (s *BattleScene) getNextDifficulty(c *entity.Campaign) (string, bool) {
-	if c.DifficultyStep == nil {
-		return "easy", false
-	}
-	steps := []string{"easy", "medium", "hard"}
-	for _, step := range steps {
-		res, ok := c.DifficultyStep[step]
-		if !ok || !res.Win {
-			return step, false
-		}
-	}
-	return "", true
-}
-
-// checkCampaignProgress salva o progresso se estiver no modo campanha
-func (s *BattleScene) checkCampaignProgress(res *entity.MatchResult) {
-	if s.ctx == nil || !s.ctx.IsCampaign || s.ctx.Profile == nil || s.ctx.Profile.CurrentCampaign == nil {
-		return
-	}
-	profile := s.ctx.Profile
-
-	// 1. Atualiza o progresso da campanha em memória com o resultado da série
-	profile.CurrentCampaign.DifficultyStep[s.ctx.Difficulty] = *res
-
-	// 2. Lógica de progressão: Se venceu o Hard, encerra a campanha ativa
-	_, finished := s.getNextDifficulty(profile.CurrentCampaign)
-	if finished && res.Win {
-		profile.CurrentCampaign.IsActive = false
-		profile.Campaigns = append(profile.Campaigns, *profile.CurrentCampaign)
-		profile.CurrentCampaign = nil
-	}
-
-	// 3. Persiste o histórico da partida e o estado do perfil (stats, medalhas, etc)
-	// AddMatchToProfile já chama UpdateProfile internamente.
-	service.AddMatchToProfile(profile, *res)
 }
 
 // Draw desenha o estado atual da batalha e o botão de recomeçar.
