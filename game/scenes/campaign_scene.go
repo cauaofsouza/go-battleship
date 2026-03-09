@@ -83,7 +83,7 @@ func (c *CampaignScene) refreshUI(size basic.Size) {
 	}
 
 	// 2. Construir UI
-	title := components.NewText(basic.Point{}, "MODO CAMPANHA", colors.White, 42)
+	title := components.NewText(basic.Point{}, "Modo Campanha", colors.White, 35)
 	scoreText := components.NewText(basic.Point{}, fmt.Sprintf("Pontuação Acumulada: %d", totalScore), colors.White, 24)
 
 	stages := []struct {
@@ -99,18 +99,22 @@ func (c *CampaignScene) refreshUI(size basic.Size) {
 		cards = append(cards, c.createStageCard(s.title, s.id, states[s.id], results[s.id]))
 	}
 
-	stagesRow := components.NewRow(
-		basic.Point{},
-		20,
-		basic.Size{W: size.W, H: 300},
-		basic.Center,
-		basic.Center,
-		cards,
+	stagesRow := components.NewContainer(
+		basic.Point{}, basic.Size{W: 220, H: 280}, 0,
+		colors.Transparent, basic.Center, basic.Center,
+		components.NewRow(
+			basic.Point{},
+			20,
+			basic.Size{W: 220, H: 280},
+			basic.Center,
+			basic.Center,
+			cards,
+		),
 	)
 
 	backBtn := components.NewButton(
 		basic.Point{},
-		basic.Size{W: 200, H: 50},
+		basic.Size{W: 220, H: 50},
 		"Voltar",
 		colors.Dark,
 		colors.White,
@@ -119,16 +123,36 @@ func (c *CampaignScene) refreshUI(size basic.Size) {
 		},
 	)
 
+	spacer := components.NewContainer(
+		basic.Point{}, basic.Size{W: 1, H: 1}, 0,
+		colors.Transparent, basic.Center, basic.Center,
+		nil,
+	)
+	spacer2 := components.NewContainer(
+		basic.Point{}, basic.Size{W: 1, H: 20}, 0,
+		colors.Transparent, basic.Center, basic.Center,
+		nil,
+	)
+
+	spacer3 := components.NewContainer(
+		basic.Point{}, basic.Size{W: 1, H: 20}, 0,
+		colors.Transparent, basic.Center, basic.Center,
+		nil,
+	)
+
 	c.root = components.NewColumn(
 		basic.Point{},
-		30,
+		40,
 		size,
-		basic.Center,
+		basic.Start,
 		basic.Center,
 		[]components.Widget{
+			spacer,
 			title,
+			spacer2,
 			scoreText,
 			stagesRow,
+			spacer3,
 			backBtn,
 		},
 	)

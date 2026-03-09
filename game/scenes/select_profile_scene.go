@@ -49,12 +49,12 @@ func (s *SelectProfileScene) buildUI(size basic.Size) {
 		basic.Point{},
 		"Jogadores",
 		colors.White,
-		22, //TODO: PADRONIZAR OS TAMANHOS DE TITULOS DE SCENES
+		35,
 	)
 
 	spacer := components.NewContainer(
 		basic.Point{},
-		basic.Size{W: size.W, H: 30},
+		basic.Size{W: size.W, H: 20},
 		0,
 		colors.Transparent,
 		basic.Center,
@@ -118,7 +118,7 @@ func (s *SelectProfileScene) buildUI(size basic.Size) {
 
 	s.root = components.NewColumn(
 		basic.Point{X: 0, Y: 0},
-		16,
+		20,
 		size,
 		basic.Start,
 		basic.Center,
@@ -177,7 +177,6 @@ func (s *SelectProfileScene) createProfileRow(p *entity.Profile, width float32, 
 	playBtn := components.NewPlayIconButton(basic.Point{}, iconSize, func() {
 		s.stack.ctx.Profile = p
 		s.stack.Push(&ModeSelectionScene{})
-		//s.stack.Push(&PlacementScene{})
 	})
 
 	// Monta a linha: [delete] [nome] [play]

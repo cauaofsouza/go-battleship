@@ -1,7 +1,6 @@
 package scenes
 
 import (
-
 	"github.com/allanjose001/go-battleship/game/components"
 	"github.com/allanjose001/go-battleship/game/components/basic"
 	"github.com/allanjose001/go-battleship/game/components/basic/colors"
@@ -138,7 +137,7 @@ func (m *MatchsHistory) init(screenSize basic.Size) {
 		basic.Point{},
 		basic.Size{W: screenSize.W, H: 60},
 		0, nil, basic.Center, basic.Center,
-		components.NewText(basic.Point{}, "Histórico de Partidas", colors.White, 42),
+		components.NewText(basic.Point{}, "Histórico de Partidas", colors.White, 35),
 	)
 
 	var cards []components.Widget
@@ -171,7 +170,6 @@ func (m *MatchsHistory) init(screenSize basic.Size) {
 		cardsColumn,
 	)
 
-
 	backButton := components.NewContainer(
 		basic.Point{},
 		basic.Size{W: screenSize.W, H: 60},
@@ -202,4 +200,5 @@ func (m *MatchsHistory) init(screenSize basic.Size) {
 		basic.Center,
 		mainWidgets,
 	)
+	_ = m.Update()
 }

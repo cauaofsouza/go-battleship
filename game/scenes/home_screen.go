@@ -114,7 +114,6 @@ func (m *HomeScreen) init(screenSize basic.Size) error {
 				nil,
 				func(bt *components.Button) {
 					m.stack.Push(&SelectProfileScene{})
-
 				},
 			),
 
@@ -133,7 +132,7 @@ func (m *HomeScreen) init(screenSize basic.Size) error {
 				basic.Point{},
 				basic.Size{W: 400, H: 50},
 				"Sair",
-				colors.Dark,
+				colors.Red,
 				nil,
 				func(bt *components.Button) {
 					fmt.Println("sair")

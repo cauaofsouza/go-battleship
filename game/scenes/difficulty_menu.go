@@ -4,82 +4,133 @@ import (
 	"github.com/allanjose001/go-battleship/game/components"
 	"github.com/allanjose001/go-battleship/game/components/basic"
 	"github.com/allanjose001/go-battleship/game/components/basic/colors"
+	"github.com/allanjose001/go-battleship/internal/entity"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type DifficultyMenu struct {
-	layout   components.LayoutWidget
-	onSelect func(difficulty string)
+type DifficultyScene struct {
+	layout components.LayoutWidget
 	StackHandler
 }
 
-func (m *DifficultyMenu) OnExit(_ Scene) {
-	m.stack.ctx.CanPopOrPush = false
-}
-
-func (m *DifficultyMenu) GetMusic() string {
+func (d *DifficultyScene) GetMusic() string {
 	return "menus"
 }
 
-func NewDifficultyMenu(w, h int, onSelect func(difficulty string), onBack func()) *DifficultyMenu {
-	btnSize := basic.Size{W: 220, H: 60}
+func (d *DifficultyScene) init(size basic.Size) {
 
-	btnRecruta := components.NewButton(basic.Point{}, btnSize, "Recruta", colors.Blue, colors.White, func(b *components.Button) {
-		onSelect("easy")
-	})
+	btnSize := basic.Size{W: 450, H: 50}
 
-	btnImediato := components.NewButton(basic.Point{}, btnSize, "Imediato", colors.Blue, colors.White, func(b *components.Button) {
-		onSelect("medium")
-	})
+	btnRecruta := components.NewButton(
+		basic.Point{},
+		btnSize,
+		"Recruta",
+		colors.Blue,
+		colors.White,
+		func(b *components.Button) {
+			d.selectDifficulty("easy")
+		},
+	)
 
-	btnAlmirante := components.NewButton(basic.Point{}, btnSize, "Almirante", colors.Blue, colors.White, func(b *components.Button) {
-		onSelect("hard")
-	})
+	btnImediato := components.NewButton(
+		basic.Point{},
+		btnSize,
+		"Imediato",
+		colors.Blue,
+		colors.White,
+		func(b *components.Button) {
+			d.selectDifficulty("medium")
+		},
+	)
 
-	// Botão Voltar
+	btnAlmirante := components.NewButton(
+		basic.Point{},
+		btnSize,
+		"Almirante",
+		colors.Blue,
+		colors.White,
+		func(b *components.Button) {
+			d.selectDifficulty("hard")
+		},
+	)
+
 	btnVoltar := components.NewButton(
 		basic.Point{},
-		basic.Size{W: 220, H: 55},
+		basic.Size{W: 220, H: 50},
 		"Voltar",
 		colors.Dark,
 		colors.White,
 		func(b *components.Button) {
-			onBack()
+			d.stack.Pop()
 		},
 	)
 
-	screenSize := basic.Size{W: float32(w), H: float32(h)}
-	column := components.NewColumn(
+	screenSize := basic.Size{W: size.W, H: size.H}
+
+	spacer := components.NewContainer(
+		basic.Point{}, basic.Size{W: 1, H: 20}, 0,
+		colors.Transparent, basic.Center, basic.Center,
+		nil,
+	)
+	spacer2 := components.NewContainer(
+		basic.Point{}, basic.Size{W: 1, H: 100}, 0,
+		colors.Transparent, basic.Center, basic.Center,
+		nil,
+	)
+
+	d.layout = components.NewColumn(
 		basic.Point{X: 0, Y: 0},
-		25,
+		20,
 		screenSize,
-		basic.Center,
+		basic.Start,
 		basic.Center,
 		[]components.Widget{
-			components.NewText(basic.Point{}, "SELEÇÃO DE DIFICULDADE", colors.White, 28),
+			spacer,
+			components.NewText(basic.Point{}, "Seleção de Dificuldade", colors.White, 35),
+			spacer2,
 			btnRecruta,
+			spacer,
 			btnImediato,
+			spacer,
 			btnAlmirante,
+			spacer2,
 			btnVoltar,
 		},
 	)
-
-	return &DifficultyMenu{layout: column, onSelect: onSelect}
+	_ = d.Update()
 }
 
-func (m *DifficultyMenu) OnEnter(prev Scene, size basic.Size) {
-	m.stack.ctx.CanPopOrPush = true
+func (d *DifficultyScene) selectDifficulty(diff string) {
+
+	var prof *entity.Profile
+
+	if d.ctx != nil {
+		d.ctx.SetDifficulty(diff)
+		d.ctx.IsCampaign = false
+		prof = d.ctx.Profile
+	}
+
+	d.stack.Push(NewPlacementSceneWithProfile(prof))
 }
 
-func (m *DifficultyMenu) Update() error {
-	if m.layout != nil {
-		m.layout.Update(basic.Point{X: 0, Y: 0})
+func (d *DifficultyScene) OnEnter(prev Scene, size basic.Size) {
+	d.init(size)
+	d.stack.ctx.CanPopOrPush = true
+}
+
+func (d *DifficultyScene) OnExit(next Scene) {
+	d.stack.ctx.CanPopOrPush = false
+}
+
+func (d *DifficultyScene) Update() error {
+	if d.layout != nil {
+		d.layout.Update(basic.Point{X: 0, Y: 0})
 	}
 	return nil
 }
 
-func (m *DifficultyMenu) Draw(screen *ebiten.Image) {
-	if m.layout != nil {
-		m.layout.Draw(screen)
+func (d *DifficultyScene) Draw(screen *ebiten.Image) {
+	if d.layout != nil {
+		d.layout.Draw(screen)
 	}
 }
